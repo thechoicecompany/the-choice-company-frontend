@@ -111,8 +111,9 @@ The application is responsible for:
        Claude     AWS S3     WhatsApp      Email
         API       Upload       API          API
 
-
+```
 📂 Project Structure
+```
 the-choice-company/
 │
 ├── public/
@@ -288,18 +289,20 @@ the-choice-company/
 ├── README.md
 └── .gitignore
 
-
+```
 📄 Folder Responsibilities
 public/
 
 Contains static assets that can be accessed directly by the browser.
+```
 public/
 ├── images/
 ├── icons/
 ├── favicon.ico
 ├── robots.txt
 └── catalog.pdf
-
+```
+```
 Images:
 
 images/
@@ -308,7 +311,7 @@ images/
 ├── gallery/
 ├── clients/
 └── team/
-
+```
 Used for website banners, products, customer logos, gallery content, and team information.
 
 📄 src/app/
@@ -316,6 +319,7 @@ Used for website banners, products, customer logos, gallery content, and team in
 Contains all Next.js App Router pages and server-side route handlers.
 
 Main Pages
+```
 Route	Purpose
 /	                      Homepage
 /about	                Company information
@@ -330,7 +334,7 @@ Route	Purpose
 /blog/[slug]	          Blog details
 /contact	              Contact page
 /thank-you	            Inquiry confirmation
-
+```
 
 🔌 Next.js API Route Handlers
 
@@ -390,7 +394,7 @@ Refresh updated content without full deployment
 The AI Kit Builder is one of the primary features of The Choice Company.
 
 It allows corporate customers to create a customized gifting kit based on their requirements.
-
+```
 AI Kit Builder Flow
 Step 1
 Occasion + Budget + Quantity
@@ -423,8 +427,9 @@ Submit Inquiry
           ▼
 Spring Boot Backend
 
-
+```
 🧩 AI Kit Builder Components
+```
 src/components/sections/kit-builder/
 
 ├── StepperNav.tsx
@@ -434,6 +439,7 @@ src/components/sections/kit-builder/
 ├── Step4AICombo.tsx
 ├── Step5ReviewQuote.tsx
 └── KitSidebar.tsx
+```
 Step 1 — Occasion & Budget
 
 Users select:
@@ -456,7 +462,7 @@ Step 3 — Company Logo
 Users upload their company logo.
 
 Flow:
-
+```
 Browser
    ↓
 /api/upload/logo
@@ -464,7 +470,7 @@ Browser
 AWS S3
    ↓
 Logo URL
-
+```
 Step 4 — AI Recommendation
 
 The application sends the requirements to:
@@ -480,7 +486,7 @@ The AI generates a suitable corporate gifting combination.
 Step 5 — Review & Submit
 
 The customer reviews the generated kit and submits an inquiry.
-
+```
 POST /api/inquiry
         ↓
 Spring Boot API
@@ -488,11 +494,11 @@ Spring Boot API
 Inquiry Processing
         ↓
 WhatsApp + Email
-
+```
 🔗 Backend Integration
 
 The frontend communicates with the Spring Boot backend through REST APIs.
-
+```
 Next.js Frontend
        │
        │ HTTPS
@@ -501,19 +507,19 @@ Spring Boot REST API
        │
        ▼
 PostgreSQL
-
+```
 The API client is located at:
 
 src/lib/api/client.ts
 
 Additional API modules:
-
+```
 src/lib/api/
 ├── client.ts
 ├── products.ts
 ├── inquiries.ts
 └── blog.ts
-
+```
 🪝 Custom React Hooks
 
 Application-specific logic is organized under:
@@ -538,27 +544,27 @@ Handles product filtering and catalogue interactions.
 🛠️ Utility Functions
 
 Located under:
-
+```
 src/lib/utils/
 File	                                Purpose
 formatCurrency.ts	                  Formats Indian currency values
 generateRef.ts	                    Generates inquiry/reference IDs
 buildAIPrompt.ts	                  Builds AI kit recommendation prompts
 uploadToS3.ts	                      Handles S3 upload utilities
-
+```
 ✅ Validation
 
 Form validation uses Zod.
-
+```
 src/lib/validations/
 
 ├── inquiry.schema.ts
 └── kitBuilder.schema.ts
-
+```
 Validation is performed before sending data to backend APIs.
 
 📦 TypeScript Types
-
+```
 Shared TypeScript interfaces are located under:
 
 src/lib/types/
@@ -594,7 +600,7 @@ Gallery	          ISR	                Updated gallery content
 Kit Builder	      SSR / Dynamic	      User-specific workflow
 Contact	          SSR / Dynamic	      Form-based interaction
 Thank You	        SSR / Dynamic	      User-specific confirmation
-
+```
 ⚡ ISR Revalidation
 
 Product and blog pages can use Incremental Static Regeneration.
@@ -602,18 +608,18 @@ Product and blog pages can use Incremental Static Regeneration.
 When content changes in the backend, the frontend can trigger:
 
 POST /api/revalidate
-
+```
 Example:
 
 {
   "secret": "<REVALIDATE_SECRET>",
   "path": "/products/laptop-bag"
 }
-
+```
 This allows updated pages to be regenerated without requiring a complete frontend deployment.
 
 🔐 Environment Variables
-
+```
 Create:
 
 .env.local
@@ -641,7 +647,7 @@ AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
 AWS_REGION=
 AWS_S3_BUCKET=
-
+```
 ⚠️ Never commit .env.local or any file containing real credentials to GitHub.
 
 🔒 Environment Variable Security
@@ -717,7 +723,7 @@ npm run type-check	Run TypeScript validation
 🧪 Development Workflow
 
 Recommended development workflow:
-
+```
 1. Pull latest changes
         ↓
 2. Create feature branch
@@ -737,9 +743,9 @@ Recommended development workflow:
 9. Push branch
         ↓
 10. Create Pull Request
-
+```
 🌿 Git Workflow
-
+```
 Create a feature branch:
 
 git checkout -b feature/product-filter
@@ -764,9 +770,9 @@ After testing, create a Pull Request into:
 
 main
 
-
+```
 🚨 Before Committing
-
+```
 Run:
 
 npm run lint
@@ -778,13 +784,13 @@ npm run type-check
 Then:
 
 npm run build
-
+```
 All three should complete successfully before merging into main.
 
 🚢 Deployment
 
 The recommended frontend deployment platform is:
-
+```
 Vercel
 Deployment Flow
 Developer
@@ -803,7 +809,9 @@ Production Build
     │
     ▼
 Live Website
+```
 ☁️ Vercel Configuration
+```
 1. Connect GitHub Repository
 
 Connect:
@@ -823,9 +831,9 @@ Project
 Settings
     ↓
 Environment Variables
-
+```
 Configure:
-
+```
 NEXT_PUBLIC_API_URL
 ANTHROPIC_API_KEY
 WHATSAPP_TOKEN
@@ -834,19 +842,21 @@ AWS_ACCESS_KEY_ID
 AWS_SECRET_ACCESS_KEY
 AWS_REGION
 AWS_S3_BUCKET
+```
 3. Deploy
-
+```
 Every push to:
 
 main
 
 can trigger a production deployment.
-
+```
 Pull requests can generate preview deployments.
 
 🔄 Production Data Flow
 
 Product Browsing
+```
 User
  ↓
 Products Page
@@ -864,9 +874,10 @@ Product Response
 ProductGrid
  ↓
 ProductCard
-
+```
 
 📩 Inquiry Flow
+```
 Customer
  ↓
 Inquiry Form
@@ -883,8 +894,9 @@ Inquiry Processing
  ├── WhatsApp Notification
  └── Email Acknowledgement
 
-
+```
 🖼️ Logo Upload Flow
+```
 Customer
  ↓
 Logo Upload
@@ -898,8 +910,9 @@ AWS S3
 Public/Signed Logo URL
  ↓
 Kit Builder
-
+```
 🤖 AI Recommendation Flow
+```
 User Requirements
         ↓
 Occasion
@@ -922,25 +935,24 @@ Step4AICombo
         ↓
 Step5ReviewQuote
 
-
+```
 📱 Responsive Design
-
 The frontend is designed for:
-
+```
 Desktop
 Laptop
 Tablet
 Mobile
-
+```
 Important responsive components include:
-
+```
 Navbar
 StickyMobileBar
 ProductGrid
 ProductFilters
 KitSidebar
 QuickInquiryForm
-
+```
 Mobile-specific interactions should be tested before production deployment.
 
 🔍 SEO
@@ -971,25 +983,25 @@ Robots:
 📈 Performance
 
 Recommended performance checks:
-
+```
 Lighthouse
 ├── Performance
 ├── Accessibility
 ├── Best Practices
 └── SEO
-
+```
 Target:
-
+```
 Performance     > 90
 Accessibility   > 90
 SEO             = 100
 Best Practices  > 90
-
+```
 
 🛡️ Security Guidelines
 
 Never commit:
-
+```
 .env.local
 API keys
 AWS credentials
@@ -1010,7 +1022,7 @@ node_modules/
 coverage/
 *.log
 
-
+```
 🐛 Common Issues
 1. Environment Variable Missing
 Error
@@ -1018,7 +1030,7 @@ API key is undefined
 Solution
 
 Check:
-
+```
 .env.local
 
 and restart the development server:
@@ -1031,16 +1043,17 @@ Check:
 NEXT_PUBLIC_API_URL=http://localhost:8080
 
 Make sure the Spring Boot backend is running.
-
+```
 3. AI Kit Builder Not Working
-
+```
 Check:
 
 ANTHROPIC_API_KEY=
 
 Make sure the key exists and is available to the server-side Route Handler.
-
+```
 4. Logo Upload Failed
+```
 
 Check:
 
@@ -1048,17 +1061,17 @@ AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
 AWS_REGION=
 AWS_S3_BUCKET=
-
+```
 Also verify AWS S3 permissions.
 
 5. WhatsApp Notification Failed
-
+```
 Check:
 
 WHATSAPP_TOKEN=
 
 Verify the WhatsApp Business API configuration and token validity.
-
+```
 6. Stale Product/Blog Data
 
 If ISR content is stale, trigger:
@@ -1109,7 +1122,7 @@ Test responsive layouts
 
 
 🧩 Component Organization
-
+```
 Components are divided into three major categories.
 
 Layout Components
@@ -1121,22 +1134,22 @@ Navbar
 Footer
 TopUtilityBar
 PageHero
-
+```
 These components are reused throughout the application.
-
+```
 Section Components
 src/components/sections/
-
+```
 Contains page-specific business sections.
-
+```
 home/
 products/
 kit-builder/
 UI Components
 src/components/ui/
-
+```
 Contains reusable interface components:
-
+```
 Button
 Badge
 Chip
@@ -1145,8 +1158,12 @@ Toast
 Lightbox
 WhatsAppButton
 StickyMobileBar
+
+```
 📊 Project Feature Summary
+
 Feature	Status
+```
 Next.js App Router	✅
 TypeScript	✅
 Responsive UI	✅
@@ -1166,7 +1183,10 @@ ISR Revalidation	✅
 SEO Sitemap	✅
 Robots.txt	✅
 Vercel Deployment	✅
+
+```
 🧠 AI Kit Builder — Technical Summary
+```
 Frontend
    │
    ├── Step1OccasionBudget
@@ -1202,7 +1222,10 @@ Frontend
             │
             ▼
      Spring Boot API
+
+```
 📌 Important Routes
+```
 Route               	    Description
 /	                         Homepage
 /about	                   About company
@@ -1217,17 +1240,18 @@ Route               	    Description
 /blog/[slug]	              Blog article
 /contact	                  Contact
 /thank-you	                Inquiry confirmation
-
+```
 🔌 API Routes
+```
 Method	Endpoint	Purpose
 POST	/api/inquiry	Submit inquiry
 POST	/api/ai/generate-combo	Generate AI gift combo
 POST	/api/upload/logo	Upload company logo
 GET	/api/products	Retrieve products
 POST	/api/revalidate	Revalidate ISR content
-
+```
 ✅ Pre-Deployment Checklist
-
+```
 Before deploying to production:
 
 [ ] npm install
@@ -1253,6 +1277,7 @@ Before deploying to production:
 [ ] Test mobile responsiveness
 [ ] Run Lighthouse
 [ ] Verify production build
+```
 👨‍💻 Development Team
 
 The Choice Company
@@ -1274,6 +1299,7 @@ This project is proprietary software developed for The Choice Company.
 Unauthorized copying, redistribution, modification, or commercial use is not permitted without appropriate authorization.
 
 ⭐ Final Development Flow
+```
 Developer
     │
     ▼
@@ -1303,7 +1329,9 @@ React UI       Route Handlers
                     │
                     ▼
                   User
+```
 🚀 Quick Start
+```
 # Clone repository
 git clone https://github.com/thechoicecompany/the-choice-company-frontend.git
 
@@ -1325,8 +1353,9 @@ npm run dev
 Open:
 
 http://localhost:3000
-
+```
 ⭐ AI Kit Builder — Quick Flow
+```
 Step 1: Occasion + Budget + Quantity
               ↓
 Step 2: Pick Products
@@ -1346,7 +1375,7 @@ Step 5: Review Recommended Kit
        Spring Boot API
               ↓
       WhatsApp + Email
-
+```
 The Choice Company — Corporate Gifting Made Simple.
 
 
