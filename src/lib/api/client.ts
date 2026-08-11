@@ -13,13 +13,14 @@ springApi.interceptors.request.use((config) => {
   return config;
 });
 
+
 // Normalise error messages
 springApi.interceptors.response.use(
   (response) => response,
   (error) => {
     const msg = error.response?.data?.message || error.message || "API request failed";
     console.error(`[Spring Boot API] ${msg}`, {
-      url:    error.config?.url,
+      url: error.config?.url,
       status: error.response?.status,
     });
     return Promise.reject(new Error(msg));
