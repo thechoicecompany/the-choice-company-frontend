@@ -1,25 +1,26 @@
+
+
 "use client";
-// ORDER SUCCESS PAGE — shown after payment verified
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 const NEXT_STEPS = [
-  { icon: "📧", time: "Immediately",    title: "Confirmation Email",  desc: "Order details & invoice sent to your email" },
-  { icon: "🏭", time: "1–2 days",      title: "Processing",          desc: "Your sample is queued for production & quality check" },
-  { icon: "🚚", time: "5–7 work days", title: "Shipped",             desc: "Dispatched via courier with tracking link" },
-  { icon: "📦", time: "7–10 work days",title: "Delivered",           desc: "Sample delivered to your address" },
+  { icon: "📧", time: "Immediately", title: "Confirmation Email", desc: "Order details & invoice sent to your email" },
+  { icon: "🏭", time: "1–2 days", title: "Processing", desc: "Your sample is queued for production & quality check" },
+  { icon: "🚚", time: "5–7 work days", title: "Shipped", desc: "Dispatched via courier with tracking link" },
+  { icon: "📦", time: "7–10 work days", title: "Delivered", desc: "Sample delivered to your address" },
 ];
 
-export default function OrderSuccessPage() {
-  const params    = useSearchParams();
-  const orderId   = params.get("orderId")   || "TCC-DEMO-2026-00000";
+function OrderSuccessContent() {
+  const params = useSearchParams();
+  const orderId = params.get("orderId") || "TCC-DEMO-2026-00000";
   const paymentId = params.get("paymentId") || "";
 
   return (
     <div className="min-h-screen section-py" style={{ background: "var(--cream)" }}>
       <div className="container-site max-w-2xl mx-auto">
 
-        {/* Success animation */}
         <div className="text-center mb-10">
           <div className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-5 anim-fade-in"
             style={{ background: "var(--teal)" }}>
@@ -35,7 +36,6 @@ export default function OrderSuccessPage() {
           </p>
         </div>
 
-        {/* Order + Payment ID */}
         <div className="card p-6 mb-6 text-center border-2 border-gold/30">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -54,7 +54,6 @@ export default function OrderSuccessPage() {
           </p>
         </div>
 
-        {/* What happens next */}
         <div className="card p-6 mb-6">
           <h2 className="font-bold text-navy mb-5">What Happens Next?</h2>
           <div className="space-y-4">
@@ -75,7 +74,6 @@ export default function OrderSuccessPage() {
           </div>
         </div>
 
-        {/* Bulk upsell — the MAIN CTA after sample purchase */}
         <div className="card p-6 mb-6 border-2 border-teal/30" style={{ background: "#F0FDF4" }}>
           <div className="flex items-start gap-4">
             <span className="text-3xl">📦</span>
@@ -97,8 +95,8 @@ export default function OrderSuccessPage() {
           </div>
         </div>
 
-        {/* Actions */}
         <div className="flex flex-wrap justify-center gap-3">
+
           <a
             href={`https://wa.me/918109000100?text=Hi! My sample order ID is ${orderId}. I'd like to enquire about a bulk order.`}
             target="_blank" rel="noopener noreferrer"
@@ -111,5 +109,17 @@ export default function OrderSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function OrderSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--cream)" }}>
+        <div className="w-10 h-10 border-4 border-navy border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <OrderSuccessContent />
+    </Suspense>
   );
 }

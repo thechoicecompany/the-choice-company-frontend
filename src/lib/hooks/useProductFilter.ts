@@ -3,16 +3,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
 export function useProductFilter() {
-  const router     = useRouter();
-  const params     = useSearchParams();
+  const router = useRouter();
+  const params = useSearchParams();
 
   const filters = {
     category: params.get("category") ?? "",
-    budget:   params.get("budget")   ?? "",
+    budget: params.get("budget") ?? "",
     occasion: params.get("occasion") ?? "",
-    sort:     params.get("sort")     ?? "popular",
-    page:     params.get("page")     ?? "1",
-    moq:      params.get("moq")      ?? "",
+    sort: params.get("sort") ?? "popular",
+    page: params.get("page") ?? "1",
+    moq: params.get("moq") ?? "",
   };
 
   const setFilter = useCallback((key: string, value: string) => {
@@ -24,7 +24,7 @@ export function useProductFilter() {
 
   const clearFilters = useCallback(() => router.push("/products"), [router]);
 
-  const hasActiveFilters = ["category","budget","occasion","moq"].some((k) => params.has(k));
+  const hasActiveFilters = ["category", "budget", "occasion", "moq"].some((k) => params.has(k));
 
   return { filters, setFilter, clearFilters, hasActiveFilters };
 }

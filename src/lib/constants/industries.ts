@@ -15,6 +15,7 @@ export const INDUSTRIES = [
     description: "Professional gifting solutions for pharmaceutical companies — doctor gifts, MR kits, and conference merchandise.",
     popularProducts: ["Executive Pens", "Conference Kits", "Branded Bags", "Premium Diaries"],
   },
+  
   {
     slug: "manufacturing",
     label: "Manufacturing",

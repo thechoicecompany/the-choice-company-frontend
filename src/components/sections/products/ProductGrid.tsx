@@ -7,11 +7,11 @@ import type { Product } from "@/lib/types/product.types";
 interface Props { products: Product[]; total: number; }
 
 const SORT_OPTIONS = [
-  { value:"popular",     label:"Most Popular" },
-  { value:"price-asc",   label:"Price: Low to High" },
-  { value:"price-desc",  label:"Price: High to Low" },
-  { value:"moq-asc",     label:"MOQ: Low to High" },
-  { value:"newest",      label:"Newest First" },
+  { value: "popular", label: "Most Popular" },
+  { value: "price-asc", label: "Price: Low to High" },
+  { value: "price-desc", label: "Price: High to Low" },
+  { value: "moq-asc", label: "MOQ: Low to High" },
+  { value: "newest", label: "Newest First" },
 ];
 
 export default function ProductGrid({ products, total }: Props) {
@@ -48,7 +48,7 @@ export default function ProductGrid({ products, total }: Props) {
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} onQuote={setQuoteProduct} />
         ))}

@@ -3,9 +3,9 @@ const ITEMS = [
   { icon: "⭐", text: "India's Trusted Corporate Gifting Partner" },
   { icon: "✅", text: "GST Registered" },
   { icon: "🚚", text: "PAN India Delivery" },
-  { icon: "⏱",  text: "On-Time Delivery" },
-  { icon: "📞", text: "+91 81090 00100", href: "tel:+918109000100" },
-  { icon: "✉",  text: "info@thechoicecompany.in", href: "mailto:info@thechoicecompany.in" },
+  { icon: "⏱", text: "On-Time Delivery" },
+  { icon: "📞", text: "+91 7067110100", href: "tel:+917067110100" },
+  { icon: "✉", text: "info@thechoicecompany.in", href: "mailto:info@thechoicecompany.in" },
 ];
 
 export default function TopUtilityBar() {

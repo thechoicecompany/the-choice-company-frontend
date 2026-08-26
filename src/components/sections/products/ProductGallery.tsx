@@ -6,16 +6,16 @@ interface Props { images: string[]; productName: string; }
 
 export default function ProductGallery({ images, productName }: Props) {
   const [activeIdx, setActiveIdx] = useState(0);
-  const [lightbox,  setLightbox]  = useState(false);
+  const [lightbox, setLightbox] = useState(false);
 
   const safeImages = images.length > 0 ? images : ["/images/products/placeholder.jpg"];
-  const active     = safeImages[activeIdx];
+  const active = safeImages[activeIdx];
 
   return (
     <>
       <div className="space-y-3">
         {/* Main Image */}
-        <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 cursor-zoom-in"
+        <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 cursor-zoom-in"
           onClick={() => setLightbox(true)}>
           <Image src={active} alt={productName} fill
             className="object-cover hover:scale-105 transition-transform duration-500"
@@ -30,9 +30,8 @@ export default function ProductGallery({ images, productName }: Props) {
           <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
             {safeImages.map((img, i) => (
               <button key={i} onClick={() => setActiveIdx(i)}
-                className={`relative w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all ${
-                  i === activeIdx ? "border-gold shadow-sm" : "border-gray-200 opacity-60 hover:opacity-100"
-                }`}>
+                className={`relative w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all ${i === activeIdx ? "border-gold shadow-sm" : "border-gray-200 opacity-60 hover:opacity-100"
+                  }`}>
                 <Image src={img} alt={`${productName} view ${i + 1}`} fill
                   className="object-cover" sizes="64px" />
               </button>

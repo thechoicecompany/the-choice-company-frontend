@@ -3,15 +3,15 @@ import type { InquiryFormData } from "@/lib/validations/inquiry.schema";
 // Sends auto-acknowledgement email to customer via SMTP / AWS SES.
 // Called server-side only — from /api/inquiry Route Handler.
 export async function sendAckEmail(
-  inquiry:   InquiryFormData,
+  inquiry: InquiryFormData,
   refNumber: string
 ): Promise<void> {
   // Dynamic import of nodemailer — only available server-side
   const nodemailer = await import("nodemailer");
 
   const transporter = nodemailer.default.createTransport({
-    host:   process.env.SMTP_HOST,
-    port:   Number(process.env.SMTP_PORT) || 587,
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT) || 587,
     secure: false,
     auth: {
       user: process.env.SMTP_USER,
@@ -38,12 +38,12 @@ export async function sendAckEmail(
         <h4 style="color: #0D1B2A;">Inquiry Summary:</h4>
         <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
           ${[
-            ["Company",  inquiry.companyName],
-            ["Category", inquiry.productCategory],
-            ["Quantity", `${inquiry.quantityRequired} units`],
-            ["Budget",   inquiry.budgetRange],
-            ["Location", `${inquiry.city}, ${inquiry.state}`],
-          ].map(([k, v]) => `
+      ["Company", inquiry.companyName],
+      ["Category", inquiry.productCategory],
+      ["Quantity", `${inquiry.quantityRequired} units`],
+      ["Budget", inquiry.budgetRange],
+      ["Location", `${inquiry.city}, ${inquiry.state}`],
+    ].map(([k, v]) => `
             <tr>
               <td style="padding: 6px 8px; color: #888; width: 35%;">${k}</td>
               <td style="padding: 6px 8px; color: #333; font-weight: bold;">${v}</td>
@@ -61,14 +61,14 @@ export async function sendAckEmail(
         </ol>
 
         <div style="margin-top: 24px; text-align: center;">
-          <a href="https://wa.me/918109000100?text=Hi! My inquiry ref is ${refNumber}."
+          <a href="https://wa.me/917067110100?text=Hi! My inquiry ref is ${refNumber}."
              style="background: #25D366; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">
             💬 Follow Up on WhatsApp
           </a>
         </div>
 
         <p style="color: #888; font-size: 12px; margin-top: 28px; text-align: center;">
-          Questions? Call us at <a href="tel:+918109000100" style="color: #C89B3C;">+91 81090 00100</a>
+          Questions? Call us at <a href="tel:+917067110100" style="color: #C89B3C;">+91 81090 00100</a>
           or email <a href="mailto:info@thechoicecompany.in" style="color: #C89B3C;">info@thechoicecompany.in</a>
         </p>
       </div>
@@ -81,9 +81,9 @@ export async function sendAckEmail(
   `;
 
   await transporter.sendMail({
-    from:    `"The Choice Company" <${process.env.EMAIL_FROM}>`,
-    to:      inquiry.email,
-    cc:      process.env.EMAIL_SALES,
+    from: `"The Choice Company" <${process.env.EMAIL_FROM}>`,
+    to: inquiry.email,
+    cc: process.env.EMAIL_SALES,
     subject: `Inquiry Received — ${refNumber} | The Choice Company`,
     html,
   });

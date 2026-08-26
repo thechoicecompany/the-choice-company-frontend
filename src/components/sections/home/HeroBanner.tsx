@@ -9,21 +9,21 @@ const SLIDES = [
     h1a: "India's Trusted",
     h1b: "Corporate Gifting Partner",
     body: "Customized Corporate Gifts | Employee Kits | Festival Hampers | Promotional Merchandise | PAN India Delivery",
-    img: "/images/hero/hero-1.jpg",
+    img: "/Poster1.png",
   },
   {
     tag: "AI-POWERED KIT BUILDER",
     h1a: "Build Your Perfect",
     h1b: "Corporate Gift Kit",
     body: "Select products, upload your logo, and let AI generate the ideal combo for your team or clients",
-    img: "/images/hero/hero-2.jpg",
+    img: "/Poster2.png",
   },
   {
     tag: "FESTIVE GIFTING SEASON",
     h1a: "Make Every Festival",
     h1b: "Memorable with Premium Gifts",
     body: "Diwali hampers, New Year kits, and seasonal gifting solutions with custom branding — pan-India delivery",
-    img: "/images/hero/hero-3.jpg",
+    img: "/Poster3.png",
   },
 ];
 
