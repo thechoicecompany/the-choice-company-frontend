@@ -66,3 +66,31 @@ export interface PaginatedResponse<T> {
   perPage: number;
   totalPages: number;
 }
+
+export interface AdminBlogPost extends BlogPost {
+  isPublished: boolean;
+  metaTitle?: string;
+  metaDescription?: string;
+  featuredImagePublicId?: string;
+  createdAt: string;
+}
+
+export interface BlogRequest {
+  title: string;
+  slug?: string;
+  excerpt: string;
+  content: string;
+  featuredImage?: string;
+  featuredImagePublicId?: string;
+  category: string;
+  tags?: string[];
+  author: string;
+  readTime?: number;
+  metaTitle?: string;
+  metaDescription?: string;
+}
+
+export interface ImageUploadResult {
+  url: string;
+  publicId: string;
+}

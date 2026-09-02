@@ -4,17 +4,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/lib/hooks/useCart";
 import { formatINR } from "@/lib/utils/formatCurrency";
-import type { SampleProduct } from "@/lib/types/cart.types";
+import type { SampleProduct } from "@/lib/types/sampleProduct.types";
 
 export default function ShopProductDetail({ product }: { product: SampleProduct }) {
   const { addItem, updateQty, getItem, isInCart } = useCart();
   const [activeImg, setActiveImg] = useState(0);
-  const [qty,       setQty]       = useState(1);
-  const [added,     setAdded]     = useState(false);
+  const [qty, setQty] = useState(1);
+  const [added, setAdded] = useState(false);
 
-  const inCart   = isInCart(product.id);
+  const inCart = isInCart(product.id);
   const cartItem = getItem(product.id);
-  const savePct  = Math.round(((product.samplePrice - product.bulkPrice) / product.samplePrice) * 100);
+  const savePct = Math.round(((product.samplePrice - product.bulkPrice) / product.samplePrice) * 100);
 
   const handleAddToCart = () => {
     if (inCart) {
@@ -45,9 +45,8 @@ export default function ShopProductDetail({ product }: { product: SampleProduct 
           <div className="flex gap-2 overflow-x-auto no-scrollbar">
             {product.images.map((img, i) => (
               <button key={i} onClick={() => setActiveImg(i)}
-                className={`relative w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all ${
-                  i === activeImg ? "border-gold" : "border-gray-200 opacity-60 hover:opacity-100"
-                }`}>
+                className={`relative w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all ${i === activeImg ? "border-gold" : "border-gray-200 opacity-60 hover:opacity-100"
+                  }`}>
                 <Image src={img} alt={`View ${i + 1}`} fill className="object-cover" sizes="64px" />
               </button>
             ))}
@@ -83,12 +82,12 @@ export default function ShopProductDetail({ product }: { product: SampleProduct 
         {/* Specs */}
         <div className="border border-gray-200 rounded-xl overflow-hidden mb-6">
           {[
-            ["Material",     product.material],
-            ["Dimensions",   product.dimensions ?? "Standard"],
-            ["Weight",       product.weight ?? "Standard"],
+            ["Material", product.material],
+            ["Dimensions", product.dimensions ?? "Standard"],
+            ["Weight", product.weight ?? "Standard"],
             ["Max Sample Qty", `${product.maxSampleQty} units`],
-            ["Bulk MOQ",     `${product.moq} units`],
-            ["Branding",     product.brandingOptions.join(", ")],
+            ["Bulk MOQ", `${product.moq} units`],
+            ["Branding", product.brandingOptions.join(", ")],
           ].map(([label, value]) => (
             <div key={label} className="flex border-b border-gray-100 last:border-0">
               <div className="w-36 px-4 py-3 bg-gray-50 text-xs font-semibold text-gray-600 flex-shrink-0">{label}</div>
@@ -115,11 +114,10 @@ export default function ShopProductDetail({ product }: { product: SampleProduct 
 
         <div className="flex gap-3 mb-6">
           <button onClick={handleAddToCart}
-            className={`flex-1 py-3.5 rounded-xl font-semibold text-base transition-all ${
-              added
-                ? "bg-teal text-white"
-                : "bg-gold text-white hover:bg-amber-600"
-            }`}>
+            className={`flex-1 py-3.5 rounded-xl font-semibold text-base transition-all ${added
+              ? "bg-teal text-white"
+              : "bg-gold text-white hover:bg-amber-600"
+              }`}>
             {added ? "✓ Added to Cart!" : inCart ? "Update Cart" : "Add to Cart"}
           </button>
           {inCart && (
@@ -133,9 +131,9 @@ export default function ShopProductDetail({ product }: { product: SampleProduct 
         <div className="grid grid-cols-2 gap-3">
           {[
             ["🔒", "Secure Payment", "Razorpay encrypted"],
-            ["↩",  "Easy Returns",   "7-day return policy"],
-            ["📞", "Support",        "+91 81090 00100"],
-            ["🏭", "Quality Assured","5-stage QC check"],
+            ["↩", "Easy Returns", "7-day return policy"],
+            ["📞", "Support", "+91 62688 99194"],
+            ["🏭", "Quality Assured", "5-stage QC check"],
           ].map(([icon, title, sub]) => (
             <div key={title as string} className="flex items-start gap-2 p-3 rounded-xl bg-gray-50">
               <span className="text-lg">{icon}</span>

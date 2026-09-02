@@ -61,14 +61,14 @@ export async function sendAckEmail(
         </ol>
 
         <div style="margin-top: 24px; text-align: center;">
-          <a href="https://wa.me/917067110100?text=Hi! My inquiry ref is ${refNumber}."
+          <a href="https://wa.me/916268899194?text=Hi! My inquiry ref is ${refNumber}."
              style="background: #25D366; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">
             💬 Follow Up on WhatsApp
           </a>
         </div>
 
         <p style="color: #888; font-size: 12px; margin-top: 28px; text-align: center;">
-          Questions? Call us at <a href="tel:+917067110100" style="color: #C89B3C;">+91 81090 00100</a>
+          Questions? Call us at <a href="tel:+916268899194" style="color: #C89B3C;">+91 6268899194</a>
           or email <a href="mailto:info@thechoicecompany.in" style="color: #C89B3C;">info@thechoicecompany.in</a>
         </p>
       </div>

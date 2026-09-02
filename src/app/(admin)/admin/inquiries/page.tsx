@@ -9,6 +9,11 @@ const STATUSES: InquiryStatus[] = [
     "NEW", "ACKNOWLEDGED", "QUOTE_SENT", "FOLLOW_UP", "CONVERTED", "CLOSED"
 ];
 
+// Fixed marker set by CatalogRequestForm — lets us filter catalog-page
+// leads out of the general inquiry pool using the existing Category filter,
+// with zero backend changes.
+const CATALOG_REQUEST_CATEGORY = "Catalog Request";
+
 export default function InquiriesPage() {
     const [inquiries, setInquiries] = useState<Inquiry[]>([]);
     const [total, setTotal] = useState(0);
@@ -46,6 +51,8 @@ export default function InquiriesPage() {
         });
     }
 
+    const isCatalogFilterActive = category === CATALOG_REQUEST_CATEGORY;
+
     return (
         <div className="space-y-5">
 
@@ -76,6 +83,20 @@ export default function InquiriesPage() {
                         <input value={category} onChange={e => setCategory(e.target.value)}
                             placeholder="e.g. Employee Kits"
                             className="px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-navy/20 w-48" />
+                    </div>
+
+                    {/* Quick filter — Catalog Requests */}
+                    <div className="self-end">
+                        <label className="block text-xs font-semibold text-transparent mb-1.5 select-none">.</label>
+                        <button
+                            onClick={() => setCategory(isCatalogFilterActive ? "" : CATALOG_REQUEST_CATEGORY)}
+                            className={`px-3 py-2 rounded-xl text-sm font-semibold border transition-colors whitespace-nowrap ${isCatalogFilterActive
+                                ? "bg-navy text-white border-navy"
+                                : "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100"
+                                }`}
+                        >
+                            Catalog Requests
+                        </button>
                     </div>
 
                     {/* Clear */}
@@ -146,7 +167,13 @@ export default function InquiriesPage() {
                                             <p className="text-xs text-gray-400">{inq.mobile}</p>
                                         </td>
                                         <td className="px-4 py-3.5">
-                                            <p className="text-xs text-gray-600 truncate max-w-[140px]">{inq.productCategory}</p>
+                                            {inq.productCategory === CATALOG_REQUEST_CATEGORY ? (
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
+                                                    📋 Catalog Request
+                                                </span>
+                                            ) : (
+                                                <p className="text-xs text-gray-600 truncate max-w-[140px]">{inq.productCategory}</p>
+                                            )}
                                         </td>
                                         <td className="px-4 py-3.5">
                                             <span className="font-semibold text-sm text-navy">

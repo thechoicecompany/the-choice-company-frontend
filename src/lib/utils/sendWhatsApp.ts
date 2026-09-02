@@ -3,10 +3,10 @@ import type { InquiryFormData } from "@/lib/validations/inquiry.schema";
 // Sends WhatsApp notification to sales team via Meta Cloud API.
 // Called server-side only — from /api/inquiry Route Handler.
 export async function sendWhatsAppAlert(
-  inquiry:   InquiryFormData,
+  inquiry: InquiryFormData,
   refNumber: string
 ): Promise<void> {
-  const token   = process.env.WHATSAPP_TOKEN;
+  const token = process.env.WHATSAPP_TOKEN;
   const phoneId = process.env.WHATSAPP_PHONE_ID;
   const salesNo = process.env.SALES_WHATSAPP_NUMBER;
 
@@ -34,16 +34,16 @@ export async function sendWhatsAppAlert(
   const url = `https://graph.facebook.com/v18.0/${phoneId}/messages`;
 
   const response = await fetch(url, {
-    method:  "POST",
+    method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
       messaging_product: "whatsapp",
-      to:                salesNo,
-      type:              "text",
-      text:              { body: message },
+      to: salesNo,
+      type: "text",
+      text: { body: message },
     }),
   });
 

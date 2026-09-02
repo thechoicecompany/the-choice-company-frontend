@@ -4,7 +4,7 @@ const ITEMS = [
   { icon: "✅", text: "GST Registered" },
   { icon: "🚚", text: "PAN India Delivery" },
   { icon: "⏱", text: "On-Time Delivery" },
-  { icon: "📞", text: "+91 7067110100", href: "tel:+917067110100" },
+  { icon: "📞", text: "+91 6268899194", href: "tel:+916268899194" },
   { icon: "✉", text: "info@thechoicecompany.in", href: "mailto:info@thechoicecompany.in" },
 ];
 

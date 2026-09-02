@@ -3,18 +3,21 @@ import type {
     CreateProductPayload, UpdateProductPayload, PricingTier,
     InventoryResponse, UpdateInventoryPayload,
     Inquiry, InquiryStatus, CatalogueRequest,
+    ContactMessage, ContactStatus,
 } from "@/lib/types/admin.types";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8089";
+
 
 // ── Core fetch wrapper ────────────────────────────────────────────────────────
 async function adminFetch<T>(
     path: string,
     options: RequestInit = {}
 ): Promise<T> {
-    const token = typeof window !== "undefined"
-        ? localStorage.getItem("tcc_admin_token")
-        : null;
+    const token =
+        typeof window !== "undefined"
+            ? localStorage.getItem("tcc_admin_token")
+            : null;
 
     const res = await fetch(`${BASE}${path}`, {
         ...options,
@@ -25,13 +28,25 @@ async function adminFetch<T>(
         },
     });
 
+    // ── 401: session expired or token invalid ────────────────────────────────
+    if (res.status === 401 && typeof window !== "undefined") {
+        localStorage.removeItem("tcc_admin_token");
+        localStorage.removeItem("tcc_admin_user");
+        document.cookie =
+            "tcc_admin_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+        window.location.href = "/admin/login?reason=session_expired";
+        // Return a never-resolving promise — navigation is in progress
+        return new Promise(() => { });
+    }
+
     const json = await res.json();
 
     if (!res.ok) {
-        // GlobalExceptionHandler#handleValidationErrors returns:
-        // { success: false, error: "Validation failed", details: { field: message, ... } }
-        // Surface the actual field-level messages instead of the generic "Validation failed".
-        if (json.details && typeof json.details === "object" && !Array.isArray(json.details)) {
+        if (
+            json.details &&
+            typeof json.details === "object" &&
+            !Array.isArray(json.details)
+        ) {
             const messages = Object.entries(json.details as Record<string, string>)
                 .map(([field, msg]) => `${field}: ${msg}`)
                 .join("; ");
@@ -39,9 +54,9 @@ async function adminFetch<T>(
         }
         throw new Error(json.message ?? json.error ?? `API error ${res.status}`);
     }
+
     return json as T;
 }
-
 // ── DASHBOARD ─────────────────────────────────────────────────────────────────
 export async function fetchDashboardStats(): Promise<DashboardStats> {
     const res = await adminFetch<ApiResponse<DashboardStats>>(
@@ -244,6 +259,48 @@ export async function fetchCatalogueRequests(
 ): Promise<PagedResponse<CatalogueRequest>> {
     const res = await adminFetch<ApiResponse<PagedResponse<CatalogueRequest>>>(
         `/api/catalogue/admin/requests?page=${page}&size=${size}`
+    );
+    return res.data;
+}
+
+export async function deleteProductImage(
+    productId: number, imageId: number
+): Promise<void> {
+    await adminFetch(`/api/admin/products/${productId}/images/${imageId}`, {
+        method: "DELETE",
+    });
+}
+
+
+// ── CONTACT MESSAGES ──────────────────────────────────────────────────────────
+// NEW — mirrors fetchInquiries/updateInquiryStatus exactly, hits ContactController.
+export async function fetchContactMessages(params: {
+    page?: number; size?: number; status?: ContactStatus;
+}): Promise<PagedResponse<ContactMessage>> {
+    const q = new URLSearchParams();
+    if (params.page !== undefined) q.set("page", String(params.page));
+    if (params.size !== undefined) q.set("size", String(params.size));
+    if (params.status) q.set("status", params.status);
+
+    const res = await adminFetch<ApiResponse<PagedResponse<ContactMessage>>>(
+        `/api/admin/contact?${q.toString()}`
+    );
+    return res.data;
+}
+
+export async function fetchContactMessage(id: number): Promise<ContactMessage> {
+    const res = await adminFetch<ApiResponse<ContactMessage>>(
+        `/api/admin/contact/${id}`
+    );
+    return res.data;
+}
+
+export async function updateContactMessageStatus(
+    id: number, status: ContactStatus, assignedTo?: number
+): Promise<ContactMessage> {
+    const res = await adminFetch<ApiResponse<ContactMessage>>(
+        `/api/admin/contact/${id}/status`,
+        { method: "PATCH", body: JSON.stringify({ status, assignedTo }) }
     );
     return res.data;
 }

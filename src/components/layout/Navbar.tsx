@@ -18,6 +18,7 @@ const NAV_LINKS = [
     highlight: true,
   },
   { href: "/gallery", label: "Gallery" },
+  { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact Us" },
 ];
 

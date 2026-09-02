@@ -14,15 +14,15 @@ import { useReducer, useEffect, useCallback, useMemo, createContext, useContext 
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
 export interface CartItem {
-  id:          number;
-  name:        string;
-  slug:        string;
-  image:       string;
-  category:    string;
+  id: number;
+  name: string;
+  slug: string;
+  image: string;
+  category: string;
   samplePrice: number;   // per-unit price for demo purchase (higher than bulk)
-  quantity:    number;   // qty in cart (1 to maxSampleQty)
-  maxSampleQty:number;   // max demo units allowed (e.g. 5)
-  moq:         number;   // bulk MOQ (shown as upsell)
+  quantity: number;   // qty in cart (1 to maxSampleQty)
+  maxSampleQty: number;   // max demo units allowed (e.g. 5)
+  moq: number;   // bulk MOQ (shown as upsell)
 }
 
 interface CartState {
@@ -32,13 +32,13 @@ interface CartState {
 }
 
 type CartAction =
-  | { type: "ADD";      item: Omit<CartItem, "quantity"> }
-  | { type: "REMOVE";   id: number }
-  | { type: "UPDATE";   id: number; quantity: number }
+  | { type: "ADD"; item: Omit<CartItem, "quantity"> }
+  | { type: "REMOVE"; id: number }
+  | { type: "UPDATE"; id: number; quantity: number }
   | { type: "CLEAR" }
   | { type: "SET_COUPON"; code: string; discount: number }
   | { type: "REMOVE_COUPON" }
-  | { type: "HYDRATE";  state: CartState };
+  | { type: "HYDRATE"; state: CartState };
 
 const STORAGE_KEY = "tcc_cart_v1";
 
@@ -91,20 +91,20 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 
 // ── CONTEXT ───────────────────────────────────────────────────────────────────
 interface CartContextValue {
-  items:        CartItem[];
-  itemCount:    number;
-  subtotal:     number;
-  discount:     number;
-  coupon:       string | null;
-  total:        number;
-  addItem:      (item: Omit<CartItem, "quantity">) => void;
-  removeItem:   (id: number) => void;
-  updateQty:    (id: number, qty: number) => void;
-  clearCart:    () => void;
-  applyCoupon:  (code: string) => Promise<boolean>;
+  items: CartItem[];
+  itemCount: number;
+  subtotal: number;
+  discount: number;
+  coupon: string | null;
+  total: number;
+  addItem: (item: Omit<CartItem, "quantity">) => void;
+  removeItem: (id: number) => void;
+  updateQty: (id: number, qty: number) => void;
+  clearCart: () => void;
+  applyCoupon: (code: string) => Promise<boolean>;
   removeCoupon: () => void;
-  isInCart:     (id: number) => boolean;
-  getItem:      (id: number) => CartItem | undefined;
+  isInCart: (id: number) => boolean;
+  getItem: (id: number) => CartItem | undefined;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -118,34 +118,34 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) dispatch({ type: "HYDRATE", state: JSON.parse(saved) });
-    } catch {}
+    } catch { }
   }, []);
 
   // Persist to localStorage on every change
   useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { }
   }, [state]);
 
   // Derived values
   const itemCount = useMemo(() => state.items.reduce((s, i) => s + i.quantity, 0), [state.items]);
-  const subtotal  = useMemo(() => state.items.reduce((s, i) => s + i.samplePrice * i.quantity, 0), [state.items]);
+  const subtotal = useMemo(() => state.items.reduce((s, i) => s + i.samplePrice * i.quantity, 0), [state.items]);
   const discountAmt = Math.round((subtotal * state.discount) / 100);
-  const total     = subtotal - discountAmt;
+  const total = subtotal - discountAmt;
 
-  const addItem     = useCallback((item: Omit<CartItem, "quantity">) => dispatch({ type: "ADD", item }), []);
-  const removeItem  = useCallback((id: number) => dispatch({ type: "REMOVE", id }), []);
-  const updateQty   = useCallback((id: number, quantity: number) => dispatch({ type: "UPDATE", id, quantity }), []);
-  const clearCart   = useCallback(() => dispatch({ type: "CLEAR" }), []);
-  const removeCoupon= useCallback(() => dispatch({ type: "REMOVE_COUPON" }), []);
-  const isInCart    = useCallback((id: number) => state.items.some(i => i.id === id), [state.items]);
-  const getItem     = useCallback((id: number) => state.items.find(i => i.id === id), [state.items]);
+  const addItem = useCallback((item: Omit<CartItem, "quantity">) => dispatch({ type: "ADD", item }), []);
+  const removeItem = useCallback((id: number) => dispatch({ type: "REMOVE", id }), []);
+  const updateQty = useCallback((id: number, quantity: number) => dispatch({ type: "UPDATE", id, quantity }), []);
+  const clearCart = useCallback(() => dispatch({ type: "CLEAR" }), []);
+  const removeCoupon = useCallback(() => dispatch({ type: "REMOVE_COUPON" }), []);
+  const isInCart = useCallback((id: number) => state.items.some(i => i.id === id), [state.items]);
+  const getItem = useCallback((id: number) => state.items.find(i => i.id === id), [state.items]);
 
   const applyCoupon = useCallback(async (code: string): Promise<boolean> => {
     // Simple coupon logic — replace with API call in production
     const COUPONS: Record<string, number> = {
       "SAMPLE10": 10,
-      "FIRST15":  15,
-      "TCC20":    20,
+      "FIRST15": 15,
+      "TCC20": 20,
     };
     const discount = COUPONS[code.toUpperCase()];
     if (discount) {

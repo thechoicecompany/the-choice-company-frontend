@@ -14,3 +14,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
+
+export async function GET(request: NextRequest) {
+  const path = request.nextUrl.searchParams.get("path");
+  if (!path) {
+    return NextResponse.json({ success: false, message: "Missing ?path=" }, { status: 400 });
+  }
+  revalidatePath(path);
+  return NextResponse.json({ success: true, revalidated: path, now: Date.now() });
+}

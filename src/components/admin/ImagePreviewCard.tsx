@@ -2,24 +2,24 @@
 import type { ImageSlot } from "@/lib/types/product-image.types";
 
 interface Props {
-  slot:          ImageSlot;
-  index:         number;
-  totalCount:    number;
-  isPrimary:     boolean;
-  onRemove:      () => void;
-  onSetPrimary:  () => void;
-  onMoveLeft:    () => void;
-  onMoveRight:   () => void;
-  disabled?:     boolean;
-  /** drag-and-drop props forwarded from parent */
-  dragProps?:    React.HTMLAttributes<HTMLDivElement>;
+  slot: ImageSlot;
+  index: number;
+  totalCount: number;
+  isPrimary: boolean;
+  onRemove: () => void;
+  onSetPrimary: () => void;
+  onMoveLeft: () => void;
+  onMoveRight: () => void;
+  disabled?: boolean;
+  dragProps?: React.HTMLAttributes<HTMLDivElement>;
 }
 
 const STATUS_RING: Record<ImageSlot["status"], string> = {
-  pending:   "ring-gray-200",
+  pending: "ring-gray-200",
   uploading: "ring-blue-400 ring-2",
-  done:      "ring-green-400 ring-2",
-  error:     "ring-red-400 ring-2",
+  done: "ring-green-400 ring-2",
+  error: "ring-red-400 ring-2",
+  deleting: "ring-orange-400 ring-2",
 };
 
 export default function ImagePreviewCard({
@@ -27,6 +27,8 @@ export default function ImagePreviewCard({
   onRemove, onSetPrimary, onMoveLeft, onMoveRight,
   disabled, dragProps,
 }: Props) {
+
+  const isBusy = slot.status === "deleting";
 
   return (
     <div
@@ -60,9 +62,16 @@ export default function ImagePreviewCard({
           <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-2">
             <div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin" />
             <span className="text-white text-xs font-semibold">{slot.progress}%</span>
-            {/* Progress bar */}
             <div className="absolute bottom-0 left-0 h-1 bg-blue-400 transition-all"
               style={{ width: `${slot.progress}%` }} />
+          </div>
+        )}
+
+        {/* Deleting overlay */}
+        {slot.status === "deleting" && (
+          <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center gap-2">
+            <div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin" />
+            <span className="text-white text-xs font-semibold">Removing…</span>
           </div>
         )}
 
@@ -85,8 +94,8 @@ export default function ImagePreviewCard({
         <button
           type="button"
           onClick={e => { e.stopPropagation(); onRemove(); }}
-          disabled={disabled}
-          className="absolute top-2 right-2 w-6 h-6 bg-white/90 hover:bg-red-500 text-gray-700 hover:text-white rounded-full flex items-center justify-center shadow transition-all text-sm font-bold"
+          disabled={disabled || isBusy}
+          className="absolute top-2 right-2 w-6 h-6 bg-white/90 hover:bg-red-500 text-gray-700 hover:text-white rounded-full flex items-center justify-center shadow transition-all text-sm font-bold disabled:opacity-50 disabled:cursor-not-allowed"
           title="Remove image"
           aria-label="Remove image"
         >
@@ -106,22 +115,19 @@ export default function ImagePreviewCard({
 
       {/* ── Actions row ──────────────────────────────────────────────────── */}
       <div className="px-2 pb-2 flex items-center gap-1">
-        {/* Move left */}
-        <button type="button" onClick={onMoveLeft} disabled={index === 0 || disabled}
+        <button type="button" onClick={onMoveLeft} disabled={index === 0 || disabled || isBusy}
           className="flex-none w-6 h-6 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed text-xs transition-colors"
           title="Move left">
           ←
         </button>
-        {/* Move right */}
-        <button type="button" onClick={onMoveRight} disabled={index === totalCount - 1 || disabled}
+        <button type="button" onClick={onMoveRight} disabled={index === totalCount - 1 || disabled || isBusy}
           className="flex-none w-6 h-6 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed text-xs transition-colors"
           title="Move right">
           →
         </button>
 
-        {/* Set primary */}
         {!isPrimary && (
-          <button type="button" onClick={onSetPrimary} disabled={disabled}
+          <button type="button" onClick={onSetPrimary} disabled={disabled || isBusy}
             className="flex-1 text-[10px] font-semibold text-amber-700 border border-gold/50 hover:bg-gold hover:text-white rounded-lg py-0.5 transition-all disabled:opacity-40"
             title="Set as primary image">
             Set Primary

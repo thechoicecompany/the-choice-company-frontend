@@ -1,9 +1,9 @@
 // SHOP BANNER — explains the demo purchase concept to visitors
 export default function ShopBanner() {
   const STEPS = [
-    { icon: "🛒", title: "Order 1–5 Samples",      desc: "Buy single units at sample pricing to evaluate quality firsthand" },
-    { icon: "✅", title: "Evaluate Quality",        desc: "Check material, finish, print quality & packaging in person" },
-    { icon: "📋", title: "Place Bulk Order",        desc: "Satisfied? Order 50–50,000 units with your logo at wholesale rates" },
+    { icon: "🛒", title: "Order 1–5 Samples", desc: "Buy single units at sample pricing to evaluate quality firsthand" },
+    { icon: "✅", title: "Evaluate Quality", desc: "Check material, finish, print quality & packaging in person" },
+    { icon: "📋", title: "Place Bulk Order", desc: "Satisfied? Order 50–50,000 units with your logo at wholesale rates" },
   ];
 
   return (

@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
 import HeroBanner from "@/components/sections/home/HeroBanner";
-import TrustStrip from "@/components/sections/home/TrustStrip";
-import OccasionCarousel from "@/components/sections/home/OccasionCarousel";
-import BudgetFilter from "@/components/sections/home/BudgetFilter";
 import CategoryGrid from "@/components/sections/home/CategoryGrid";
 import FeaturedProducts from "@/components/sections/home/FeaturedProducts";
 import IndustriesStrip from "@/components/sections/home/IndustriesStrip";
@@ -25,9 +22,6 @@ export default async function HomePage() {
     <>
       <SchemaMarkup schema={{ "@context": "https://schema.org", "@type": "Organization", name: "The Choice Company", url: "https://thechoicecompany.in" }} />
       <HeroBanner />
-      <TrustStrip />
-      <OccasionCarousel />
-      <BudgetFilter />
       <CategoryGrid />
       <FeaturedProducts products={featuredProducts} />
       <IndustriesStrip />

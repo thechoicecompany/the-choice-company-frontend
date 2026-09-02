@@ -1,12 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import { CartProvider } from "@/lib/hooks/useCart";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import TopUtilityBar from "@/components/layout/TopUtilityBar";
-import WhatsAppButton from "@/components/ui/WhatsAppButton";
-import StickyMobileBar from "@/components/ui/StickyMobileBar";
-import ExitIntentPopup from "@/components/ui/ExitIntentPopup";
+import SiteChrome from "@/components/layout/SiteChrome";
 import "./globals.css";
 
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", display: "swap" });
@@ -33,17 +28,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
       <body className="font-inter antialiased">
-        {/* CartProvider wraps everything so cart state is available globally */}
         <CartProvider>
-          <TopUtilityBar />
-          <Navbar />
-          <main className="min-h-screen">{children}</main>
-          <Footer />
-          <WhatsAppButton />
-          <StickyMobileBar />
-          <ExitIntentPopup />
+          <SiteChrome>{children}</SiteChrome>
         </CartProvider>
-
       </body>
     </html>
   );

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { InquirySchema, type InquiryFormData } from "@/lib/validations/inquiry.schema";
 
 export function useInquiryForm() {
-  const [status,    setStatus]    = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [refNumber, setRefNumber] = useState<string | null>(null);
 
   const form = useForm<InquiryFormData>({
@@ -22,10 +22,10 @@ export function useInquiryForm() {
   const onSubmit = async (data: InquiryFormData) => {
     setStatus("submitting");
     try {
-      const res  = await fetch("/api/inquiry", {
-        method:  "POST",
+      const res = await fetch("/api/inquiry", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify(data),
+        body: JSON.stringify(data),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
@@ -40,8 +40,8 @@ export function useInquiryForm() {
         if (typeof w.gtag === "function") {
           (w.gtag as Function)("event", "inquiry_submitted", {
             event_category: "Lead",
-            event_label:    data.productCategory,
-            value:          data.quantityRequired,
+            event_label: data.productCategory,
+            value: data.quantityRequired,
           });
         }
       }

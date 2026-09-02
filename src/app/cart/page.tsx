@@ -187,7 +187,7 @@ export default function CartPage() {
 
                             {/* Trust signals */}
                             <div className="mt-4 space-y-2">
-                                {["🔒 Secure payment via Razorpay", "🚚 Free shipping on all sample orders", "↩ Easy returns within 7 days", "📞 24/7 support at +91 81090 00100"].map(t => (
+                                {["🔒 Secure payment via Razorpay", "🚚 Free shipping on all sample orders", "↩ Easy returns within 7 days", "📞 24/7 support at +91 62688 99194"].map(t => (
                                     <div key={t} className="text-[11px] text-gray-400 flex items-center gap-1">{t}</div>
                                 ))}
                             </div>

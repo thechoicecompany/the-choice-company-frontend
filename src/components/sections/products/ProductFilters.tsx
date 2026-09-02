@@ -49,8 +49,8 @@ export default function ProductFilters({ activeFilters }: Props) {
           {CATEGORIES.map((cat) => (
             <Link key={cat.slug} href={buildHref("category", cat.slug)}
               className={`flex items-center gap-2 px-2 py-1 rounded-md text-xs leading-tight transition-colors ${activeFilters.category === cat.slug
-                  ? "bg-navy text-white font-medium"
-                  : "text-gray-600 hover:bg-gray-50"
+                ? "bg-navy text-white font-medium"
+                : "text-gray-600 hover:bg-gray-50"
                 }`}>
               <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${activeFilters.category === cat.slug ? "bg-gold" : "bg-gray-300"}`} />
               {cat.label}
@@ -66,8 +66,8 @@ export default function ProductFilters({ activeFilters }: Props) {
           {BUDGET_RANGES.map((b) => (
             <Link key={b.value} href={buildHref("budget", b.value)}
               className={`flex items-center justify-between px-2 py-1 rounded-md text-xs leading-tight transition-colors ${activeFilters.budget === b.value
-                  ? "bg-gold text-white font-medium"
-                  : "text-gray-600 hover:bg-gray-50"
+                ? "bg-gold text-white font-medium"
+                : "text-gray-600 hover:bg-gray-50"
                 }`}>
               <span>{b.label}</span>
               {b.isLuxury && <span>💎</span>}
@@ -83,8 +83,8 @@ export default function ProductFilters({ activeFilters }: Props) {
           {OCCASIONS.slice(0, 8).map((occ) => (
             <Link key={occ.slug} href={buildHref("occasion", occ.slug)}
               className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border transition-all ${activeFilters.occasion === occ.slug
-                  ? "bg-navy text-white border-navy"
-                  : "border-gray-200 text-gray-600 hover:border-navy"
+                ? "bg-navy text-white border-navy"
+                : "border-gray-200 text-gray-600 hover:border-navy"
                 }`}>
               {occ.icon} {occ.label}
             </Link>
@@ -99,8 +99,8 @@ export default function ProductFilters({ activeFilters }: Props) {
           {["50", "100", "250", "500"].map((moq) => (
             <Link key={moq} href={buildHref("moq", moq)}
               className={`px-2 py-0.5 rounded-full text-[10px] border transition-colors ${activeFilters["moq" as keyof typeof activeFilters] === moq
-                  ? "bg-navy text-white border-navy font-medium"
-                  : "border-gray-200 text-gray-600 hover:border-navy"
+                ? "bg-navy text-white border-navy font-medium"
+                : "border-gray-200 text-gray-600 hover:border-navy"
                 }`}>
               {moq}+ units
             </Link>

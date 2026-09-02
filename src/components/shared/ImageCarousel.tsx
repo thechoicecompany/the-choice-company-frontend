@@ -7,15 +7,17 @@ interface Props {
     images: string[];
     productName: string;
     productSlug: string;
-    counterPosition?: "top-left" | "bottom-right"; // NEW
+    href?: string; // NEW — overrides the default /products/[slug] link target
+    counterPosition?: "top-left" | "bottom-right";
 }
 
 export default function ImageCarousel({
-    images, productName, productSlug,
+    images, productName, productSlug, href,
     counterPosition = "bottom-right", // default for new usages
 }: Props) {
     const [current, setCurrent] = useState(0);
     const total = images.length;
+    const linkHref = href ?? `/products/${productSlug}`;
 
     const prev = useCallback((e: React.MouseEvent) => {
         e.preventDefault(); e.stopPropagation();
@@ -34,14 +36,14 @@ export default function ImageCarousel({
 
     if (total === 0) {
         return (
-            <Link href={`/products/${productSlug}`} className="relative flex h-64 items-center justify-center bg-gray-50 text-4xl">
+            <Link href={linkHref} className="relative flex h-64 items-center justify-center bg-gray-50 text-4xl">
                 🎁
             </Link>
         );
     }
 
     return (
-        <Link href={`/products/${productSlug}`} className="block relative h-64 bg-gray-50 overflow-hidden">
+        <Link href={linkHref} className="block relative h-64 bg-gray-50 overflow-hidden group">
             {images.map((src, idx) => (
                 <div key={idx} className={`absolute inset-0 transition-opacity duration-400 ${idx === current ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
                     <Image src={src} alt={`${productName} — image ${idx + 1}`} fill

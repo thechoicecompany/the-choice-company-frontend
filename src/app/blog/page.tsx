@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import type { BlogPost } from "@/lib/types/blog.types";
 import PageHero from "@/components/layout/PageHero";
 import { fetchPosts, fetchBlogCategories } from "@/lib/api/blog";
@@ -24,7 +25,19 @@ export default async function BlogPage({ searchParams }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {postsData.data.map((post: BlogPost) => (
             <Link key={post.slug} href={`/blog/${post.slug}`} className="card group block">
-              <div className="h-48 bg-gray-100 flex items-center justify-center text-5xl">📝</div>
+
+              <div className="h-48 bg-gray-100 relative overflow-hidden">
+                {post.featuredImage ? (
+                  <Image
+                    src={post.featuredImage}
+                    alt={post.title}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="h-full flex items-center justify-center text-5xl">📝</div>
+                )}
+              </div>
               <div className="p-5">
                 <span className="badge-gold text-[10px] mb-2 inline-block">{post.category}</span>
                 <h3 className="font-bold text-navy mb-2 group-hover:text-gold transition-colors">{post.title}</h3>

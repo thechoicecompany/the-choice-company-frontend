@@ -17,7 +17,15 @@ const NAV: NavItem[] = [
     { href: "/admin/inquiries", label: "Inquiries", icon: "📋", roles: ["SUPER_ADMIN", "SALES_MANAGER", "SALES_EXECUTIVE"] },
     { href: "/admin/products", label: "Products", icon: "📦", roles: ["SUPER_ADMIN", "CONTENT_MANAGER"] },
     { href: "/admin/inventory", label: "Inventory", icon: "🏭", roles: ["SUPER_ADMIN", "CONTENT_MANAGER", "SALES_MANAGER"] },
-    { href: "/admin/catalogue", label: "Catalogue Requests", icon: "📑", roles: ["SUPER_ADMIN", "SALES_MANAGER"] },
+    // { href: "/admin/catalogue", label: "Catalogue Requests", icon: "📑", roles: ["SUPER_ADMIN", "SALES_MANAGER"] },
+    {
+        href: "/admin/contact-messages",
+        label: "Contact Messages",
+        icon: "💬",
+        roles: ["SUPER_ADMIN", "SALES_MANAGER", "SALES_EXECUTIVE"]
+    },
+    { href: "/admin/sample-products", label: "Sample Shop", icon: "🛍️", roles: ["SUPER_ADMIN", "CONTENT_MANAGER"] },
+    { href: "/admin/blog", label: "Blog", icon: "📝", roles: ["SUPER_ADMIN", "CONTENT_MANAGER"] },
 ];
 
 export default function AdminSidebar() {
@@ -74,8 +82,8 @@ export default function AdminSidebar() {
                         <Link key={item.href} href={item.href}
                             title={collapsed ? item.label : undefined}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative ${active
-                                    ? "bg-gold text-white font-semibold"
-                                    : "text-white/60 hover:bg-white/10 hover:text-white"
+                                ? "bg-gold text-white font-semibold"
+                                : "text-white/60 hover:bg-white/10 hover:text-white"
                                 }`}>
                             <span className="text-lg flex-shrink-0">{item.icon}</span>
                             {!collapsed && (

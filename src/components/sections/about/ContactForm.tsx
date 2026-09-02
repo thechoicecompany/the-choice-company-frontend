@@ -1,19 +1,41 @@
 "use client";
 import { useState } from "react";
 
-const SUBJECTS = ["Bulk Order Inquiry","Product Information","Custom Branding","Delivery Query","Partnership","Other"];
+// adjust path to your actual api-client.ts
+import { ContactSchema } from "@/lib/validations/contact.schema";
+import { springApi } from "@/lib/api/client";
+const SUBJECTS = ["Bulk Order Inquiry", "Product Information", "Custom Branding", "Delivery Query", "Partnership", "Other"];
 
 export default function ContactForm() {
-  const [form,   setForm]   = useState({ name:"", company:"", email:"", phone:"", subject:"", message:"" });
-  const [status, setStatus] = useState<"idle"|"submitting"|"success"|"error">("idle");
+  const [form, setForm] = useState({ name: "", company: "", email: "", phone: "", subject: "", message: "" });
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState<string>("");
   const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); setStatus("submitting");
+    e.preventDefault();
+
+    // Validate client-side first with the schema you already have
+    const parsed = ContactSchema.safeParse(form);
+    if (!parsed.success) {
+      setStatus("error");
+      setErrorMsg(parsed.error.issues[0]?.message || "Please check the form fields.");
+      return;
+    }
+
+    setStatus("submitting");
+    setErrorMsg("");
     try {
-      await new Promise(r => setTimeout(r, 1000)); // replace with real API call
-      setStatus("success"); setForm({ name:"", company:"", email:"", phone:"", subject:"", message:"" });
-    } catch { setStatus("error"); }
+      // Public endpoint — no auth token needed, springApi's interceptor
+      // just won't attach one in the browser (INTERNAL_API_TOKEN is
+      // server-only and undefined client-side, which is fine here).
+      await springApi.post("/api/contact", parsed.data);
+      setStatus("success");
+      setForm({ name: "", company: "", email: "", phone: "", subject: "", message: "" });
+    } catch (err) {
+      setStatus("error");
+      setErrorMsg(err instanceof Error ? err.message : "Something went wrong.");
+    }
   };
 
   return (
@@ -36,7 +58,7 @@ export default function ContactForm() {
         <textarea required value={form.message} onChange={e => set("message", e.target.value)} rows={5} className="resize-none" placeholder="Tell us about your gifting requirements..." />
       </div>
       {status === "success" && <p className="text-sm text-green-700 bg-green-50 px-3 py-2 rounded-lg">✅ Message sent! We'll respond within 2 business hours.</p>}
-      {status === "error"   && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">❌ Failed to send. Please call us directly.</p>}
+      {status === "error" && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">❌ {errorMsg || "Failed to send. Please call us directly."}</p>}
       <button type="submit" disabled={status === "submitting"} className="btn-gold w-full py-3.5 text-base disabled:opacity-60">
         {status === "submitting" ? "Sending..." : "📧 Send Message"}
       </button>

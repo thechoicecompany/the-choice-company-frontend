@@ -1,12 +1,11 @@
-// SHOP PAGE — ISR 1hr
-// Demo purchase store. Clients can buy 1–5 sample units to evaluate quality
-// before placing a bulk order. This is NOT the main bulk order flow.
-// After purchase → upsell to bulk inquiry.
+// app/shop/page.tsx
+// SHOP PAGE — ISR 1hr, revalidated on-demand by admin CRUD writes
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/layout/PageHero";
 import ShopGrid from "@/components/shop/ShopGrid";
 import ShopBanner from "@/components/shop/ShopBanner";
+import { fetchSampleProducts } from "@/lib/api/sampleProducts";
 
 export const revalidate = 3600;
 
@@ -17,7 +16,9 @@ export const metadata: Metadata = {
     alternates: { canonical: "https://thechoicecompany.in/shop" },
 };
 
-export default function ShopPage() {
+export default async function ShopPage() {
+    const products = await fetchSampleProducts();
+
     return (
         <>
             <PageHero
@@ -26,10 +27,8 @@ export default function ShopPage() {
                 breadcrumbs={[{ label: "Home", href: "/" }, { label: "Sample Shop" }]}
             />
 
-            {/* How it works banner */}
             <ShopBanner />
 
-            {/* Product Grid */}
             <section className="section-py" style={{ background: "var(--cream)" }}>
                 <div className="container-site">
                     <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
@@ -42,11 +41,10 @@ export default function ShopPage() {
                             📋 Skip to Bulk Order →
                         </Link>
                     </div>
-                    <ShopGrid />
+                    <ShopGrid products={products} />
                 </div>
             </section>
 
-            {/* Bulk upsell CTA */}
             <section className="py-12" style={{ background: "var(--navy)" }}>
                 <div className="container-site text-center">
                     <h2 className="font-playfair text-2xl font-bold text-white mb-2">

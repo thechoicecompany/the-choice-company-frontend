@@ -55,3 +55,4 @@ export async function fetchBlogCategories(): Promise<string[]> {
   const res = await springApi.get<ApiEnvelope<string[]>>("/api/blog/categories");
   return res.data?.data ?? [];
 }
+

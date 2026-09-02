@@ -1,9 +1,9 @@
 interface OrderEmailData {
-  orderId:   string;
+  orderId: string;
   paymentId: string;
-  customer:  { name: string; email: string; phone: string; address: { line1: string; city: string; state: string; pincode: string } };
-  items:     { name: string; quantity: number; samplePrice: number; subtotal: number }[];
-  total:     number;
+  customer: { name: string; email: string; phone: string; address: { line1: string; city: string; state: string; pincode: string } };
+  items: { name: string; quantity: number; samplePrice: number; subtotal: number }[];
+  total: number;
 }
 
 export async function sendOrderConfirmationEmail(data: OrderEmailData): Promise<void> {
@@ -56,14 +56,14 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData): Promise<
         </div>
       </div>
       <div style="background:#0D1B2A;padding:12px;text-align:center">
-        <p style="color:#fff;opacity:0.4;margin:0;font-size:11px">© ${new Date().getFullYear()} The Choice Company · +91 81090 00100</p>
+        <p style="color:#fff;opacity:0.4;margin:0;font-size:11px">© ${new Date().getFullYear()} The Choice Company · +91 62688 9194</p>
       </div>
     </div>`;
 
   await transporter.sendMail({
-    from:    `"The Choice Company" <${process.env.EMAIL_FROM}>`,
-    to:      data.customer.email,
-    cc:      process.env.EMAIL_SALES,
+    from: `"The Choice Company" <${process.env.EMAIL_FROM}>`,
+    to: data.customer.email,
+    cc: process.env.EMAIL_SALES,
     subject: `Order Confirmed — ${data.orderId} | The Choice Company`,
     html,
   });

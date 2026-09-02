@@ -1,31 +1,38 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { OCCASIONS }     from "@/lib/constants/occasions";
 import { BUDGET_RANGES } from "@/lib/constants/budgetRanges";
 
 const CATEGORIES = [
-  "Gift Hampers","Laptop Bags","Backpacks","Drinkware","Office Essentials",
-  "Apparel","Travel Kits","Electronics","Eco-Friendly Gifts","Premium Gifts","Custom Merchandise",
+  // Festive & occasion-based
+  "Diwali Gifts", "Holi Gifts", "New Year Gifts", "Christmas Gifts", "Festive Hampers",
+
+  // Product-type categories
+  "Gift Hampers", "Laptop Bags", "Backpacks", "Trolley Bags", "Drinkware", "Office Essentials",
+  "Apparel", "Travel Kits", "Electronics", "Eco-Friendly Gifts", "Premium Gifts", "Custom Merchandise",
+
+  // Corporate occasion categories
+  "Employee Welcome", "Work Anniversary", "Client Appreciation", "Conference Kits",
+  "Retirement Gifts", "Wedding Gifts", "Dealer Meet Gifts", "Women's Day",
 ];
 
 const INDIAN_STATES = [
-  "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat",
-  "Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh",
-  "Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab",
-  "Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh",
-  "Uttarakhand","West Bengal","Delhi","Jammu & Kashmir","Ladakh",
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat",
+  "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh",
+  "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
+  "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh",
+  "Uttarakhand", "West Bengal", "Delhi", "Jammu & Kashmir", "Ladakh",
 ];
 
 export default function BulkInquiryForm() {
-  const router  = useRouter();
-  const [status, setStatus] = useState<"idle"|"submitting"|"success"|"error">("idle");
-  const [form,   setForm]   = useState({
-    companyName:"", contactPerson:"", designation:"", email:"",
-    mobile:"", city:"", state:"", productCategory:"",
-    quantityRequired:100, budgetRange:"", deliveryLocation:"",
-    brandingRequired:true, packagingRequirement:"",
-    expectedDeliveryDate:"", additionalNotes:"",
+  const router = useRouter();
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [form, setForm] = useState({
+    companyName: "", contactPerson: "", designation: "", email: "",
+    mobile: "", city: "", state: "", productCategory: "",
+    quantityRequired: 100, budgetRange: "", deliveryLocation: "",
+    brandingRequired: true, packagingRequirement: "",
+    expectedDeliveryDate: "", additionalNotes: "",
   });
 
   const set = (k: string, v: unknown) => setForm(p => ({ ...p, [k]: v }));
@@ -34,7 +41,7 @@ export default function BulkInquiryForm() {
     e.preventDefault();
     setStatus("submitting");
     try {
-      const res  = await fetch("/api/inquiry", {
+      const res = await fetch("/api/inquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -147,7 +154,7 @@ export default function BulkInquiryForm() {
       {/* Status messages */}
       {status === "error" && (
         <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700">
-          ❌ Submission failed. Please try again or call us at +91 81090 00100.
+          ❌ Submission failed. Please try again or call us at +91 62688 99194.
         </div>
       )}
       {status === "success" && (

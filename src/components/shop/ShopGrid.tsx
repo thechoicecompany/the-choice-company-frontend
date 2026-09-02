@@ -1,32 +1,39 @@
 "use client";
 import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
 import { useCart } from "@/lib/hooks/useCart";
-import { SAMPLE_PRODUCTS } from "@/lib/constants/sampleProducts";
 import { formatINR } from "@/lib/utils/formatCurrency";
+import type { SampleProduct } from "@/lib/types/sampleProduct.types";
+import ImageCarousel from "@/components/shared/ImageCarousel";
 
 const CATEGORIES = ["All", "Drinkware", "Bags", "Eco-Friendly", "Desk Essentials", "Festive Hampers", "Employee Kits", "Electronics", "Stationery"];
 
-export default function ShopGrid() {
+function getImageList(product: SampleProduct): string[] {
+  const all: string[] = [];
+  if (product.image) all.push(product.image);
+  if (product.images) all.push(...product.images.filter(Boolean));
+  return [...new Set(all)];
+}
+
+export default function ShopGrid({ products }: { products: SampleProduct[] }) {
   const { addItem, isInCart } = useCart();
   const [activeTab, setActiveTab] = useState("All");
   const [added, setAdded] = useState<number | null>(null);
 
   const filtered = activeTab === "All"
-    ? SAMPLE_PRODUCTS
-    : SAMPLE_PRODUCTS.filter(p => p.category === activeTab);
+    ? products
+    : products.filter(p => p.category === activeTab);
 
-  const handleAdd = (product: typeof SAMPLE_PRODUCTS[0]) => {
+  const handleAdd = (product: SampleProduct) => {
     addItem({
-      id:          product.id,
-      name:        product.name,
-      slug:        product.slug,
-      image:       product.image,
-      category:    product.category,
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      image: product.image,
+      category: product.category,
       samplePrice: product.samplePrice,
-      maxSampleQty:product.maxSampleQty,
-      moq:         product.moq,
+      maxSampleQty: product.maxSampleQty,
+      moq: product.moq,
     });
     setAdded(product.id);
     setTimeout(() => setAdded(null), 2000);
@@ -38,11 +45,10 @@ export default function ShopGrid() {
       <div className="flex gap-2 flex-wrap mb-8">
         {CATEGORIES.map(cat => (
           <button key={cat} onClick={() => setActiveTab(cat)}
-            className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-all ${
-              activeTab === cat
-                ? "bg-navy text-white border-navy"
-                : "border-gray-200 text-gray-600 hover:border-gold hover:text-gold"
-            }`}>
+            className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-all ${activeTab === cat
+              ? "bg-navy text-white border-navy"
+              : "border-gray-200 text-gray-600 hover:border-gold hover:text-gold"
+              }`}>
             {cat}
           </button>
         ))}
@@ -51,28 +57,33 @@ export default function ShopGrid() {
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filtered.map(product => {
-          const inCart   = isInCart(product.id);
-          const justAdded= added === product.id;
-          const savePct  = Math.round(((product.samplePrice - product.bulkPrice) / product.samplePrice) * 100);
+          const inCart = isInCart(product.id);
+          const justAdded = added === product.id;
+          const savePct = Math.round(((product.samplePrice - product.bulkPrice) / product.samplePrice) * 100);
+          const imageList = getImageList(product);
 
           return (
             <div key={product.id} className="card group flex flex-col">
-              {/* Image */}
-              <div className="relative h-48 bg-gray-50 overflow-hidden flex-shrink-0">
-                <Image src={product.image} alt={product.name} fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,25vw" />
+              {/* Image Carousel */}
+              <div className="relative flex-shrink-0">
                 {/* Badges */}
-                <div className="absolute top-3 left-3 flex flex-col gap-1">
+                <div className="absolute top-3 left-3 z-10 flex flex-col gap-1 pointer-events-none">
                   <span className="badge-gold text-[10px]">Sample</span>
                   {product.tags.includes("bestseller") && (
                     <span className="badge text-[10px] bg-orange text-white">Bestseller</span>
                   )}
                 </div>
                 {/* Max qty badge */}
-                <div className="absolute top-3 right-3 bg-white/90 rounded-lg px-2 py-1 text-[10px] font-semibold text-navy">
+                <div className="absolute top-3 right-3 z-10 bg-white/90 rounded-lg px-2 py-1 text-[10px] font-semibold text-navy pointer-events-none">
                   Max {product.maxSampleQty} units
                 </div>
+
+                <ImageCarousel
+                  images={imageList}
+                  productName={product.name}
+                  productSlug={product.slug}
+                  href={`/shop/${product.slug}`}
+                />
               </div>
 
               {/* Content */}
@@ -114,13 +125,12 @@ export default function ShopGrid() {
                     Details
                   </Link>
                   <button onClick={() => handleAdd(product)}
-                    className={`btn-sm flex-1 transition-all ${
-                      justAdded
-                        ? "bg-teal text-white"
-                        : inCart
+                    className={`btn-sm flex-1 transition-all ${justAdded
+                      ? "bg-teal text-white"
+                      : inCart
                         ? "btn-outline-navy"
                         : "btn-gold"
-                    }`}>
+                      }`}>
                     {justAdded ? "✓ Added!" : inCart ? "In Cart" : "Add to Cart"}
                   </button>
                 </div>

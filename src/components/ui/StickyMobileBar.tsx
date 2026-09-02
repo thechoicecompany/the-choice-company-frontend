@@ -5,10 +5,10 @@ export default function StickyMobileBar() {
       <a href="/bulk-orders#inquiry-form" className="flex flex-col items-center py-3 text-[11px] font-medium gap-1 text-navy">
         <span className="text-xl">📋</span>Inquiry
       </a>
-      <a href="tel:+917067110100" className="flex flex-col items-center py-3 text-[11px] font-medium gap-1 border-x border-gray-100 text-navy">
+      <a href="tel:+916268899194" className="flex flex-col items-center py-3 text-[11px] font-medium gap-1 border-x border-gray-100 text-navy">
         <span className="text-xl">📞</span>Call
       </a>
-      <a href="https://wa.me/917067110100" target="_blank" rel="noopener noreferrer"
+      <a href="https://wa.me/916268899194" target="_blank" rel="noopener noreferrer"
         className="flex flex-col items-center py-3 text-[11px] font-medium gap-1" style={{ color: "#25D366" }}>
         <span className="text-xl">💬</span>WhatsApp
       </a>

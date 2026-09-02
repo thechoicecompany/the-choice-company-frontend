@@ -12,30 +12,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const isLogin = pathname === "/admin/login";
 
-    // useEffect(() => {
-    //     if (!isLoading && !user && !isLogin) {
-    //         router.replace("/admin/login");
-    //     }
-    // }, [user, isLoading, isLogin, router]);
 
-    //     useEffect(() => {
-    //     const demoMode =
-    //         process.env.NEXT_PUBLIC_ADMIN_DEMO_MODE === "true";
-
-    //     if (
-    //         !demoMode &&
-    //         !isLoading &&
-    //         !user &&
-    //         !isLogin
-    //     ) {
-    //         router.replace("/admin/login");
-    //     }
-    // }, [
-    //     user,
-    //     isLoading,
-    //     isLogin,
-    //     router,
-    // ]);
     useEffect(() => {
         const demoMode =
             process.env.NEXT_PUBLIC_ADMIN_DEMO_MODE === "true";

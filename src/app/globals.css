@@ -46,6 +46,23 @@
         box-sizing: border-box;
     }
 
+    /* Pehla — @layer base me */
+    .container-site {
+        @apply mx-auto w-full px-6;
+        max-width: 100%;
+    }
+
+    @media (min-width: 1536px) {
+        .container-site {
+            max-width: 1600px;
+        }
+    }
+
+    /* Dusra — @layer components me (neeche) */
+    .container-site {
+        @apply mx-auto w-full max-w-7xl px-6;
+    }
+
     html {
         scroll-behavior: smooth;
     }
@@ -54,6 +71,8 @@
         background-color: var(--cream);
         color: var(--gray-700);
     }
+
+
 
     h1,
     h2,
@@ -193,4 +212,8 @@
 .btn-teal:hover {
     background: #0F3D2E;
     transform: translateY(-1px);
+}
+
+.input {
+    @apply w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-navy/20;
 }

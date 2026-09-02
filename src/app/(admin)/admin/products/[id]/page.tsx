@@ -4,7 +4,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import ProductForm from "@/components/admin/ProductForm";
 import { fetchAdminProduct, updateProduct } from "@/lib/api/admin";
-import type { AdminProduct, UpdateProductPayload } from "@/lib/types/admin.types";
+import type { AdminProduct, CreateProductPayload } from "@/lib/types/admin.types";
 
 export default function EditProductPage() {
   const router = useRouter();
@@ -22,7 +22,9 @@ export default function EditProductPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  async function handleSubmit(payload: UpdateProductPayload) {
+  // ProductForm always produces a full CreateProductPayload.
+  // updateProduct accepts Partial<...> so passing the full payload is valid.
+  async function handleSubmit(payload: CreateProductPayload) {
     await updateProduct(id, payload);
     router.push("/admin/products");
     router.refresh();
@@ -57,6 +59,7 @@ export default function EditProductPage() {
 
       {/* Product info banner */}
       <div className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={product.image} alt={product.name}
           className="w-14 h-14 rounded-xl object-cover flex-shrink-0 border border-gray-100" />
         <div>

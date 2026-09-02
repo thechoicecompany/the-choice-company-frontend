@@ -98,7 +98,7 @@ function OrderSuccessContent() {
         <div className="flex flex-wrap justify-center gap-3">
 
           <a
-            href={`https://wa.me/918109000100?text=Hi! My sample order ID is ${orderId}. I'd like to enquire about a bulk order.`}
+            href={`https://wa.me/916268899194?text=Hi! My sample order ID is ${orderId}. I'd like to enquire about a bulk order.`}
             target="_blank" rel="noopener noreferrer"
             className="btn-md text-white rounded-lg"
             style={{ background: "#25D366" }}>

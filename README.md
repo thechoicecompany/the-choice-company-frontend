@@ -117,166 +117,182 @@ The application is responsible for:
 the-choice-company/
 │
 ├── public/
-│   ├── images/
-│   │   ├── hero/
-│   │   ├── products/
-│   │   ├── gallery/
-│   │   ├── clients/
-│   │   └── team/
-│   │
-│   ├── icons/
-│   ├── favicon.ico
-│   ├── robots.txt
-│   └── catalog.pdf
+│   ├── logo.png
+│   ├── Poster1.png
+│   ├── Poster2.png
+│   └── Poster3.png
 │
 ├── src/
-│   │
 │   ├── app/
+│   │   ├── globals.css
 │   │   ├── layout.tsx
 │   │   ├── page.tsx
-│   │   ├── globals.css
 │   │   ├── sitemap.ts
-│   │
-│   │   ├── about/
-│   │   │   └── page.tsx
-│   │
-│   │   ├── products/
-│   │   │   ├── page.tsx
-│   │   │   └── [slug]/
+│   │   │
+│   │   ├── (admin)/
+│   │   │   ├── layout.tsx
+│   │   │   └── admin/
 │   │   │       ├── page.tsx
-│   │   │       ├── loading.tsx
-│   │   │       └── not-found.tsx
-│   │
-│   │   ├── bulk-orders/
-│   │   │   └── page.tsx
-│   │
-│   │   ├── build-your-kit/
-│   │   │   ├── page.tsx
-│   │   │   └── loading.tsx
-│   │
-│   │   ├── industries/
-│   │   │   ├── page.tsx
-│   │   │   └── [industry]/
-│   │   │       └── page.tsx
-│   │
-│   │   ├── gallery/
-│   │   │   └── page.tsx
-│   │
+│   │   │       ├── blog/
+│   │   │       │   ├── page.tsx
+│   │   │       │   ├── new/page.tsx
+│   │   │       │   └── [id]/edit/page.tsx
+│   │   │       ├── catalogue/page.tsx
+│   │   │       ├── dashboard/page.tsx
+│   │   │       ├── inquiries/
+│   │   │       │   ├── page.tsx
+│   │   │       │   └── [id]/page.tsx
+│   │   │       ├── inventory/page.tsx
+│   │   │       ├── login/page.tsx
+│   │   │       └── products/
+│   │   │           ├── page.tsx
+│   │   │           ├── new/page.tsx
+│   │   │           └── [id]/
+│   │   │               ├── page.tsx
+│   │   │               └── pricing/page.tsx
+│   │   │
+│   │   ├── about/page.tsx
+│   │   ├── api/
+│   │   │   ├── admin/upload/
+│   │   │   │   ├── image/route.ts
+│   │   │   │   └── logo/route.ts
+│   │   │   ├── ai/generate-combo/route.ts
+│   │   │   ├── inquiry/route.ts
+│   │   │   ├── newsletter/route.ts
+│   │   │   ├── products/route.ts
+│   │   │   └── revalidate/route.ts
 │   │   ├── blog/
 │   │   │   ├── page.tsx
-│   │   │   └── [slug]/
-│   │   │       └── page.tsx
-│   │
-│   │   ├── contact/
-│   │   │   └── page.tsx
-│   │
-│   │   ├── thank-you/
-│   │   │   └── page.tsx
-│   │
-│   │   └── api/
-│   │       ├── inquiry/
-│   │       │   └── route.ts
-│   │       │
-│   │       ├── ai/
-│   │       │   └── generate-combo/
-│   │       │       └── route.ts
-│   │       │
-│   │       ├── upload/
-│   │       │   └── logo/
-│   │       │       └── route.ts
-│   │       │
-│   │       ├── products/
-│   │       │   └── route.ts
-│   │       │
-│   │       └── revalidate/
-│   │           └── route.ts
+│   │   │   └── [slug]/page.tsx
+│   │   ├── build-your-kit/page.tsx
+│   │   ├── bulk-orders/page.tsx
+│   │   ├── cart/page.tsx
+│   │   ├── checkout/page.tsx
+│   │   ├── contact/page.tsx
+│   │   ├── gallery/page.tsx
+│   │   ├── industries/
+│   │   │   ├── page.tsx
+│   │   │   └── [industry]/page.tsx
+│   │   ├── order-success/page.tsx
+│   │   ├── products/
+│   │   │   ├── page.tsx
+│   │   │   └── [slug]/page.tsx
+│   │   ├── shop/
+│   │   │   ├── page.tsx
+│   │   │   └── [slug]/page.tsx
+│   │   └── thank-you/page.tsx
 │   │
 │   ├── components/
-│   │   │
+│   │   ├── admin/
+│   │   │   ├── AdminBadge.tsx
+│   │   │   ├── AdminModal.tsx
+│   │   │   ├── AdminSidebar.tsx
+│   │   │   ├── AdminStatCard.tsx
+│   │   │   ├── AdminTopbar.tsx
+│   │   │   ├── DashboardCharts.tsx
+│   │   │   ├── ImagePreviewCard.tsx
+│   │   │   ├── ImageUploadZone.tsx
+│   │   │   ├── InventoryActionModal.tsx
+│   │   │   ├── PricingTierForm.tsx
+│   │   │   └── ProductForm.tsx
+│   │   ├── blog/
+│   │   │   ├── BlogEditor.tsx
+│   │   │   └── BlogForm.tsx
+│   │   ├── cart/CartIcon.tsx
 │   │   ├── layout/
-│   │   │   ├── Navbar.tsx
 │   │   │   ├── Footer.tsx
-│   │   │   ├── TopUtilityBar.tsx
-│   │   │   └── PageHero.tsx
-│   │   │
+│   │   │   ├── Navbar.tsx
+│   │   │   ├── PageHero.tsx
+│   │   │   └── TopUtilityBar.tsx
 │   │   ├── sections/
-│   │   │
+│   │   │   ├── about/
+│   │   │   │   ├── CompanyOverview.tsx
+│   │   │   │   ├── ContactForm.tsx
+│   │   │   │   ├── DeliveryMap.tsx
+│   │   │   │   ├── Infrastructure.tsx
+│   │   │   │   ├── TeamGrid.tsx
+│   │   │   │   └── VisionMission.tsx
+│   │   │   ├── blog/
+│   │   │   ├── gallery/GalleryGrid.tsx
 │   │   │   ├── home/
-│   │   │   │   ├── HeroBanner.tsx
-│   │   │   │   ├── TrustStrip.tsx
-│   │   │   │   ├── OccasionCarousel.tsx
 │   │   │   │   ├── BudgetFilter.tsx
 │   │   │   │   ├── CategoryGrid.tsx
+│   │   │   │   ├── CtaBanner.tsx
 │   │   │   │   ├── FeaturedProducts.tsx
+│   │   │   │   ├── HeroBanner.tsx
 │   │   │   │   ├── IndustriesStrip.tsx
-│   │   │   │   ├── WhyChooseUs.tsx
+│   │   │   │   ├── OccasionCarousel.tsx
 │   │   │   │   ├── ProcessFlow.tsx
-│   │   │   │   ├── Testimonials.tsx
-│   │   │   │   ├── ClientLogos.tsx
-│   │   │   │   └── CtaBanner.tsx
-│   │   │
-│   │   │   ├── products/
-│   │   │   │   ├── ProductGrid.tsx
-│   │   │   │   ├── ProductCard.tsx
-│   │   │   │   ├── ProductFilters.tsx
-│   │   │   │   └── QuickInquiryForm.tsx
-│   │   │
-│   │   │   └── kit-builder/
-│   │   │       ├── StepperNav.tsx
-│   │   │       ├── Step1OccasionBudget.tsx
-│   │   │       ├── Step2PickProducts.tsx
-│   │   │       ├── Step3LogoUpload.tsx
-│   │   │       ├── Step4AICombo.tsx
-│   │   │       ├── Step5ReviewQuote.tsx
-│   │   │       └── KitSidebar.tsx
-│   │
+│   │   │   │   ├── SocialProof.tsx
+│   │   │   │   ├── TrustStrip.tsx
+│   │   │   │   └── WhyChooseUs.tsx
+│   │   │   ├── kit-builder/
+│   │   │   │   ├── KitSidebar.tsx
+│   │   │   │   ├── Step1OccasionBudget.tsx
+│   │   │   │   ├── Step2PickProducts.tsx
+│   │   │   │   ├── Step3LogoUpload.tsx
+│   │   │   │   ├── Step4AICombo.tsx
+│   │   │   │   ├── Step5ReviewQuote.tsx
+│   │   │   │   └── StepperNav.tsx
+│   │   │   └── products/
+│   │   │       ├── BulkInquiryForm.tsx
+│   │   │       ├── PricingTiers.tsx
+│   │   │       ├── ProductCard.tsx
+│   │   │       ├── ProductFilters.tsx
+│   │   │       ├── ProductGallery.tsx
+│   │   │       ├── ProductGrid.tsx
+│   │   │       ├── QuickInquiryForm.tsx
+│   │   │       └── RelatedProducts.tsx
+│   │   ├── shared/ImageCarousel.tsx
+│   │   ├── shop/
+│   │   │   ├── ShopBanner.tsx
+│   │   │   ├── ShopGrid.tsx
+│   │   │   └── ShopProductDetail.tsx
 │   │   └── ui/
-│   │       ├── Button.tsx
-│   │       ├── WhatsAppButton.tsx
 │   │       ├── ExitIntentPopup.tsx
 │   │       ├── SchemaMarkup.tsx
+│   │       ├── StickyMobileBar.tsx
 │   │       ├── Toast.tsx
-│   │       ├── Lightbox.tsx
-│   │       ├── Badge.tsx
-│   │       ├── Chip.tsx
-│   │       ├── Accordion.tsx
-│   │       └── StickyMobileBar.tsx
+│   │       └── WhatsAppButton.tsx
 │   │
-│   ├── lib/
-│   │   │
-│   │   ├── api/
-│   │   │   ├── client.ts
-│   │   │   ├── products.ts
-│   │   │   ├── inquiries.ts
-│   │   │   └── blog.ts
-│   │   │
-│   │   ├── hooks/
-│   │   │   ├── useKitBuilder.ts
-│   │   │   ├── useInquiryForm.ts
-│   │   │   ├── useScrollReveal.ts
-│   │   │   └── useProductFilter.ts
-│   │   │
-│   │   ├── utils/
-│   │   │   ├── formatCurrency.ts
-│   │   │   ├── generateRef.ts
-│   │   │   ├── buildAIPrompt.ts
-│   │   │   └── uploadToS3.ts
-│   │   │
-│   │   ├── validations/
-│   │   │   ├── inquiry.schema.ts
-│   │   │   └── kitBuilder.schema.ts
-│   │   │
-│   │   ├── types/
-│   │   │   ├── product.types.ts
-│   │   │   ├── inquiry.types.ts
-│   │   │   └── kit.types.ts
-│   │   │
-│   │   └── constants/
-│   │       ├── occasions.ts
-│   │       └── industries.ts
-│   │
-│   └── styles/
-│       └── animations.css
+│   └── lib/
+│       ├── api/
+│       │   ├── admin.ts
+│       │   ├── blog.ts
+│       │   ├── client.ts
+│       │   ├── gallery.ts
+│       │   ├── products.ts
+│       │   └── admin/blog.ts
+│       ├── constants/
+│       │   ├── budgetRanges.ts
+│       │   ├── industries.ts
+│       │   ├── occasions.ts
+│       │   └── sampleProducts.ts
+│       ├── hooks/
+│       │   ├── useAdminAuth.tsx
+│       │   ├── useCart.tsx
+│       │   ├── useInquiryForm.ts
+│       │   ├── useKitBuilder.ts
+│       │   ├── useProductFilter.ts
+│       │   └── useScrollReveal.ts
+│       ├── types/
+│       │   ├── admin.types.ts
+│       │   ├── blog.types.ts
+│       │   ├── cart.types.ts
+│       │   ├── product-image.types.ts
+│       │   └── product.types.ts
+│       ├── utils/
+│       │   ├── buildAIPrompt.ts
+│       │   ├── formatCurrency.ts
+│       │   ├── generateRef.ts
+│       │   ├── sendEmail.ts
+│       │   ├── sendOrderEmail.ts
+│       │   ├── sendWhatsApp.ts
+│       │   ├── uploadToCloudinary.ts
+│       │   └── verifyRecaptcha.ts
+│       └── validations/
+│           ├── contact.schema.ts
+│           └── inquiry.schema.ts
 │
 ├── .env.local
 ├── .env.local.example

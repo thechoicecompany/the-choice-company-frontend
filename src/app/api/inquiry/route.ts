@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { InquirySchema }     from "@/lib/validations/inquiry.schema";
-import { springApi }         from "@/lib/api/client";
+import { ZodError } from "zod";
+import { InquirySchema } from "@/lib/validations/inquiry.schema";
+import { springApi } from "@/lib/api/client";
 import { sendWhatsAppAlert } from "@/lib/utils/sendWhatsApp";
-import { sendAckEmail }      from "@/lib/utils/sendEmail";
-import { generateRef }       from "@/lib/utils/generateRef";
-import { verifyRecaptcha }   from "@/lib/utils/verifyRecaptcha";
+import { sendAckEmail } from "@/lib/utils/sendEmail";
+import { generateRef } from "@/lib/utils/generateRef";
+import { verifyRecaptcha } from "@/lib/utils/verifyRecaptcha";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
     const validated = InquirySchema.parse(body);
     const refNumber = generateRef();
 
-    await springApi.post("/api/inquiries", { ...validated, refNumber, source: "website_form" });
+    await springApi.post("/api/inquiries", { ...validated, refNumber, source: "WEBSITE_FORM" });
 
     Promise.allSettled([
       sendWhatsAppAlert(validated, refNumber),
@@ -24,8 +25,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, refNumber }, { status: 201 });
   } catch (error: unknown) {
-    if (error instanceof Error && error.name === "ZodError")
-      return NextResponse.json({ success: false, error: "Validation failed", details: error.message }, { status: 400 });
+    if (error instanceof ZodError)
+      return NextResponse.json({ success: false, error: "Validation failed", details: error.errors }, { status: 400 });
     console.error("Inquiry error:", error);
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }

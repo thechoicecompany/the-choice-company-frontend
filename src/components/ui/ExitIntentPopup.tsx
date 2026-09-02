@@ -1,7 +1,8 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 const TEAL_DARK = "#0c2622";
 const TEAL = "#173f3b";
@@ -13,22 +14,19 @@ const GOLD_LIGHT = "#e8c874";
 
 type GiftType = "mug" | "bottle" | "diary" | "bag" | "gift" | "hamper";
 
-const RADIUS_DESKTOP = 195;
-const RADIUS_MOBILE = 112;
-
-const GIFT_DEFS: { id: number; label: string; type: GiftType; angle: number; delay: number; spin: number }[] = [
-  { id: 1, label: "BOTTLE", type: "bottle", angle: 15, delay: 0, spin: 240 },
-  { id: 2, label: "DIARY", type: "diary", angle: 46, delay: 0.06, spin: -260 },
-  { id: 3, label: "GIFT", type: "gift", angle: 78, delay: 0.12, spin: 300 },
-  { id: 4, label: "HAMPER", type: "hamper", angle: 102, delay: 0.18, spin: -300 },
-  { id: 5, label: "MUG", type: "mug", angle: 134, delay: 0.24, spin: 260 },
-  { id: 6, label: "BAG", type: "bag", angle: 165, delay: 0.3, spin: -240 },
+// Simple stagger order — no angle/radius math. Each icon just fades,
+// pops, and spins in with an increasing delay, then sits in normal
+// document flow (flex-wrap row) below. This guarantees the layout can
+// never clip regardless of container size — the browser handles wrapping
+// and centering on its own.
+const GIFT_DEFS: { id: number; label: string; type: GiftType; delay: number; spin: number }[] = [
+  { id: 1, label: "BOTTLE", type: "bottle", delay: 0, spin: 240 },
+  { id: 2, label: "DIARY", type: "diary", delay: 0.06, spin: -260 },
+  { id: 3, label: "GIFT", type: "gift", delay: 0.12, spin: 300 },
+  { id: 4, label: "HAMPER", type: "hamper", delay: 0.18, spin: -300 },
+  { id: 5, label: "MUG", type: "mug", delay: 0.24, spin: 260 },
+  { id: 6, label: "BAG", type: "bag", delay: 0.3, spin: -240 },
 ];
-
-function arcPosition(angleDeg: number, radius: number) {
-  const rad = (angleDeg * Math.PI) / 180;
-  return { x: Math.cos(rad) * radius, y: -Math.sin(rad) * radius };
-}
 
 const CONFETTI = Array.from({ length: 26 }).map((_, i) => {
   const angle = (i / 26) * 360 + (i % 2 === 0 ? 8 : -8);
@@ -222,6 +220,7 @@ function BrandGiftBox({ stage }: { stage: "hidden" | "dropped" | "charging" | "b
 type Stage = "hidden" | "dropped" | "charging" | "blasted";
 
 export default function ExitIntentPopup() {
+  const router = useRouter();
   const [visible, setVisible] = useState(false);
   const [stage, setStage] = useState<Stage>("hidden");
   const [giftsVisible, setGiftsVisible] = useState(false);
@@ -283,7 +282,7 @@ export default function ExitIntentPopup() {
           onClick={() => setVisible(false)}
         >
           <motion.div
-            className="relative flex max-h-[90vh] w-full max-w-[720px] flex-col items-center overflow-y-auto rounded-[24px] border border-white/10 px-4 pb-6 pt-5 shadow-[0_30px_90px_rgba(0,0,0,.4)] md:px-8 md:pb-8 md:pt-6"
+            className="relative flex max-h-[90vh] w-full max-w-[720px] flex-col items-center overflow-y-auto rounded-[24px] border border-white/10 px-4 pb-6 pt-8 shadow-[0_30px_90px_rgba(0,0,0,.4)] md:px-8 md:pb-8 md:pt-10"
             style={{ background: `${TEAL}f5` }}
             initial={{ scale: 0.96, y: 10, opacity: 0 }}
             animate={shake ? { scale: 1, y: 0, opacity: 1, x: [0, -6, 6, -4, 4, -2, 0] } : { scale: 1, y: 0, opacity: 1, x: 0 }}
@@ -305,44 +304,54 @@ export default function ExitIntentPopup() {
 
             <div className="pointer-events-none absolute left-1/2 top-20 h-64 w-64 -translate-x-1/2 rounded-full blur-[90px]" style={{ background: `${GOLD}1a` }} />
 
-            {/* Stage: flex-centers a RELATIVE (not absolute) anchor wrapper.
-                An absolutely-positioned child with no inset ignores flex
-                alignment entirely — that was the actual bug. */}
-            <div className="relative mt-2 h-[270px] w-full flex items-center justify-center md:h-[300px]">
-              <div className="relative z-10">
-                {giftsVisible &&
-                  GIFT_DEFS.map((gift) => {
-                    const desktop = arcPosition(gift.angle, RADIUS_DESKTOP);
-                    const mobile = arcPosition(gift.angle, RADIUS_MOBILE);
-                    const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
-                    const target = isDesktop ? desktop : mobile;
-                    return (
-                      <motion.div
-                        key={gift.id}
-                        className="absolute left-0 top-0 z-20"
-                        initial={{ x: 0, y: -30, opacity: 0, scale: 0.1, rotate: 0 }}
-                        animate={{
-                          x: target.x,
-                          y: target.y,
-                          opacity: 1,
-                          scale: [0.1, 1.25, 1],
-                          rotate: [0, gift.spin, 0],
-                        }}
-                        transition={{ delay: gift.delay, duration: 0.75, type: "spring", stiffness: 160, damping: 13 }}
-                      >
-                        <motion.div
-                          animate={{ y: [0, -4, 0] }}
-                          transition={{ duration: 2.8 + gift.id * 0.12, repeat: Infinity, ease: "easeInOut", delay: gift.delay + 0.75 }}
-                        >
-                          <GiftProduct type={gift.type} label={gift.label} />
-                        </motion.div>
-                      </motion.div>
-                    );
-                  })}
+            {/* Brand logo — centered above everything else, on a white
+                pill so it keeps its original colors/contrast instead of
+                blending into the dark teal popup background */}
+            <motion.div
+              className="mb-2 flex w-full justify-center"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <div className="rounded-2xl bg-white px-5 py-2.5 shadow-[0_6px_20px_rgba(0,0,0,.18)] md:px-6 md:py-3">
+                <Image
+                  src="/logo.png"
+                  alt="The Choice Company"
+                  width={280}
+                  height={154}
+                  className="h-18 w-auto object-contain md:h-24"
+                  priority
+                />
+              </div>
+            </motion.div>
 
-                <div className="absolute left-0 top-0 z-30 -translate-x-1/2 -translate-y-1/2">
-                  <BrandGiftBox stage={stage} />
-                </div>
+            {/* Stage: normal document flow, no absolute arc positioning.
+                Icons sit in a centered flex-wrap row above the box; the
+                browser handles spacing/wrapping itself, so this can never
+                clip regardless of container height or screen size. */}
+            <div className="relative z-10 mt-4 flex w-full flex-col items-center md:mt-6">
+              <div className="mb-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-4 md:mb-7 md:gap-x-7 md:gap-y-5">
+                {giftsVisible &&
+                  GIFT_DEFS.map((gift) => (
+                    <motion.div
+                      key={gift.id}
+                      initial={{ opacity: 0, scale: 0.15, y: -14, rotate: 0 }}
+                      animate={{ opacity: 1, scale: 1, y: 0, rotate: [0, gift.spin, 0] }}
+                      transition={{ delay: gift.delay, duration: 0.65, type: "spring", stiffness: 170, damping: 14 }}
+                    >
+                      <motion.div
+                        animate={{ y: [0, -4, 0] }}
+                        transition={{ duration: 2.8 + gift.id * 0.12, repeat: Infinity, ease: "easeInOut", delay: gift.delay + 0.65 }}
+                      >
+                        <GiftProduct type={gift.type} label={gift.label} />
+                      </motion.div>
+                    </motion.div>
+                  ))}
+              </div>
+
+              {/* NEW wrapper — shifts only the box, not the icons */}
+              <div className="-translate-x-20 md:-translate-x-35">
+                <BrandGiftBox stage={stage} />
               </div>
             </div>
 
@@ -354,20 +363,28 @@ export default function ExitIntentPopup() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <div className="text-[9px] font-semibold uppercase tracking-[.38em]" style={{ color: GOLD }}>
-                    THE CHOICE COMPANY
-                  </div>
                   <h2 className="mt-1 font-playfair text-2xl font-bold text-white md:text-4xl">Make Every Gift Count.</h2>
                   <p className="mx-auto mt-2 max-w-md text-xs text-white/65 md:text-sm">
                     Explore 200+ corporate gifting ideas with pricing.
                   </p>
 
                   <div className="mt-4 flex flex-col items-center gap-2">
-                    <button
+                    {/* <button
                       type="button"
                       className="rounded-xl px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(201,154,61,.25)] transition hover:-translate-y-0.5"
                       style={{ background: GOLD }}
                       onClick={() => console.log("Get Free Catalog")}
+                    >
+                      Get Free Catalog <span className="ml-1">→</span>
+                    </button> */}
+                    <button
+                      type="button"
+                      className="rounded-xl px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(201,154,61,.25)] transition hover:-translate-y-0.5"
+                      style={{ background: GOLD }}
+                      onClick={() => {
+                        setVisible(false);
+                        router.push("/catalog");
+                      }}
                     >
                       Get Free Catalog <span className="ml-1">→</span>
                     </button>

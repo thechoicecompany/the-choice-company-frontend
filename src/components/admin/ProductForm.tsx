@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AdminProduct, CreateProductPayload } from "@/lib/types/admin.types";
 import type { ImageSlot, UploadedImageRef } from "@/lib/types/product-image.types";
 import ImageUploadZone, { uploadSlots } from "./ImageUploadZone";
@@ -30,13 +30,6 @@ const BRANDING_OPTS = [
     "Debossing", "UV Print", "Sticker Label", "Patch Label",
 ];
 
-// ── Constraints that MUST mirror CreateProductRequest.java exactly ─────────────
-// name:        @NotBlank @Size(min = 3, max = 200)
-// category:    @NotBlank @Size(min = 2, max = 100)
-// description: @NotBlank @Size(min = 10, max = 500)
-// image:       @NotBlank
-// moq:         @NotNull @Min(1) @Max(100000)
-// basePrice:   @NotNull @DecimalMin("1.0")
 const NAME_MIN = 3, NAME_MAX = 200;
 const DESC_MIN = 10, DESC_MAX = 500;
 const PRICE_MIN = 1;
@@ -52,7 +45,6 @@ function sanitizeSlug(input: string): string {
 }
 
 export default function ProductForm({ initial, onSubmit, submitLabel = "Save Product" }: Props) {
-    // ── Text fields ────────────────────────────────────────────────────────────
     const [name, setName] = useState(initial?.name ?? "");
     const [slug, setSlug] = useState(initial?.slug ?? "");
     const [category, setCategory] = useState(initial?.category ?? "");
@@ -74,13 +66,30 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
     const [metaTitle, setMetaTitle] = useState(initial?.metaTitle ?? "");
     const [metaDesc, setMetaDesc] = useState(initial?.metaDescription ?? "");
 
-    // ── Image slots ────────────────────────────────────────────────────────────
     const [imageSlots, setImageSlots] = useState<ImageSlot[]>([]);
 
-    // ── Form state ─────────────────────────────────────────────────────────────
+    // Pre-populate image slots from existing product images (edit mode).
+    // Slots with status "done" are skipped by uploadSlots() — never re-uploaded.
+    useEffect(() => {
+        if (!initial?.productImages || initial.productImages.length === 0) return;
+
+        const preloaded: ImageSlot[] = initial.productImages.map(img => ({
+            uid: img.id.toString(),
+            file: new File([], img.imageUrl.split("/").pop() ?? "image", { type: "image/jpeg" }),
+            preview: img.imageUrl,
+            status: "done" as const,
+            progress: 100,
+            url: img.imageUrl,
+            publicId: img.publicId,
+            dbImageId: img.id, // new line add
+        }));
+
+        setImageSlots(preloaded);
+    }, [initial?.id]);
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [uploadPhase, setUploadPhase] = useState(false); // true while uploading images
+    const [uploadPhase, setUploadPhase] = useState(false);
 
     function handleCategoryChange(catLabel: string) {
         const found = CATEGORIES.find(c => c.label === catLabel);
@@ -98,26 +107,16 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
         e.preventDefault();
         setError("");
 
-        // ── Frontend validation (mirrors CreateProductRequest.java) ────────────
         const trimmedName = name.trim();
         const trimmedDesc = description.trim();
 
-        if (!trimmedName) {
-            setError("Product name is required.");
-            return;
-        }
+        if (!trimmedName) { setError("Product name is required."); return; }
         if (trimmedName.length < NAME_MIN || trimmedName.length > NAME_MAX) {
             setError(`Product name must be between ${NAME_MIN} and ${NAME_MAX} characters (currently ${trimmedName.length}).`);
             return;
         }
-        if (!category) {
-            setError("Please select a category.");
-            return;
-        }
-        if (!trimmedDesc) {
-            setError("Description is required.");
-            return;
-        }
+        if (!category) { setError("Please select a category."); return; }
+        if (!trimmedDesc) { setError("Description is required."); return; }
         if (trimmedDesc.length < DESC_MIN) {
             setError(`Description must be at least ${DESC_MIN} characters (currently ${trimmedDesc.length}).`);
             return;
@@ -126,10 +125,7 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
             setError(`Description must be under ${DESC_MAX} characters (currently ${trimmedDesc.length}).`);
             return;
         }
-        if (price < PRICE_MIN) {
-            setError(`Price must be at least ₹${PRICE_MIN}.`);
-            return;
-        }
+        if (price < PRICE_MIN) { setError(`Price must be at least ₹${PRICE_MIN}.`); return; }
         if (moq < MOQ_MIN || moq > MOQ_MAX) {
             setError(`MOQ must be between ${MOQ_MIN} and ${MOQ_MAX}.`);
             return;
@@ -141,7 +137,6 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
 
         setLoading(true);
 
-        // ── Phase 1: Upload images to Cloudinary ───────────────────────────────
         let finalSlots: ImageSlot[];
         try {
             setUploadPhase(true);
@@ -154,7 +149,6 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
             return;
         }
 
-        // Check all uploaded successfully
         const failedSlots = finalSlots.filter(s => s.status === "error");
         if (failedSlots.length > 0) {
             setLoading(false);
@@ -162,7 +156,6 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
             return;
         }
 
-        // ── Phase 2: Build payload and create product ──────────────────────────
         const images: UploadedImageRef[] = finalSlots.map((s, i) => ({
             url: s.url!,
             publicId: s.publicId ?? "",
@@ -178,7 +171,6 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
                 categorySlug: catSlug,
                 description: trimmedDesc,
                 fullDescription: fullDesc || undefined,
-                // Primary image = first uploaded image URL (for backward compat with products.image col)
                 image: images[0]?.url ?? "",
                 images: images.slice(1).map(i => i.url),
                 moq,
@@ -190,7 +182,6 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
                 tags: tagsInput.split(",").map(t => t.trim()).filter(Boolean),
                 metaTitle: metaTitle || undefined,
                 metaDescription: metaDesc || undefined,
-                // Inventory (create only)
                 ...(!initial && {
                     inventory: {
                         stockQty,
@@ -198,12 +189,10 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
                         sku: sku || undefined,
                     },
                 }),
-
-
                 productImages: images,
             } as CreateProductPayload);
         } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : "Failed to create product");
+            setError(err instanceof Error ? err.message : "Failed to save product");
         } finally {
             setLoading(false);
         }
@@ -222,43 +211,32 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
     return (
         <form onSubmit={handleSubmit} className="space-y-8">
 
-            {/* ── Section: Basic Information ─────────────────────────────────────── */}
+            {/* ── Section 1: Product Information ────────────────────────────────── */}
             <section>
                 <h3 className="font-bold text-navy text-base mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
                     <span className="w-6 h-6 rounded-lg bg-navy text-white text-xs flex items-center justify-center font-bold">1</span>
                     Product Information
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Name */}
                     <div className="md:col-span-2">
                         <label className={labelCls}>Product Name <span className="text-red-500">*</span></label>
                         <input value={name} onChange={e => setName(e.target.value)}
                             className={inputCls} placeholder="e.g. Premium Steel Thermos" required
-                            maxLength={NAME_MAX}
-                            disabled={isSubmitting} />
+                            maxLength={NAME_MAX} disabled={isSubmitting} />
                         <p className={`text-xs mt-1 ${nameTooShort ? "text-red-500" : "text-gray-400"}`}>
                             {nameLen}/{NAME_MAX} characters {nameTooShort && `(min ${NAME_MIN} required)`}
                         </p>
                     </div>
-                    {/* SKU */}
                     <div>
                         <label className={labelCls}>SKU</label>
                         <input value={sku} onChange={e => setSku(e.target.value)}
-                            className={inputCls} placeholder="PROD-001"
-                            disabled={isSubmitting} />
+                            className={inputCls} placeholder="PROD-001" disabled={isSubmitting} />
                     </div>
-                    {/* Slug */}
                     <div>
                         <label className={labelCls}>Slug <span className="text-gray-400 font-normal">(auto if empty)</span></label>
-                        <input
-                            value={slug}
-                            onChange={e => setSlug(sanitizeSlug(e.target.value))}
-                            className={inputCls}
-                            placeholder="premium-steel-thermos"
-                            disabled={isSubmitting}
-                        />
+                        <input value={slug} onChange={e => setSlug(sanitizeSlug(e.target.value))}
+                            className={inputCls} placeholder="premium-steel-thermos" disabled={isSubmitting} />
                     </div>
-                    {/* Category */}
                     <div>
                         <label className={labelCls}>Category <span className="text-red-500">*</span></label>
                         <select value={category} onChange={e => handleCategoryChange(e.target.value)}
@@ -269,20 +247,17 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
                             ))}
                         </select>
                     </div>
-                    {/* MOQ */}
                     <div>
                         <label className={labelCls}>MOQ (Min Order Qty)</label>
                         <input type="number" min={MOQ_MIN} max={MOQ_MAX} value={moq}
                             onChange={e => setMoq(Number(e.target.value))}
                             className={inputCls} disabled={isSubmitting} />
                     </div>
-                    {/* Description */}
                     <div className="md:col-span-2">
                         <label className={labelCls}>Short Description <span className="text-red-500">*</span></label>
                         <textarea value={description} onChange={e => setDescription(e.target.value)}
                             rows={2} className={inputCls} required disabled={isSubmitting}
-                            maxLength={DESC_MAX}
-                            placeholder="100–200 characters for product listing card" />
+                            maxLength={DESC_MAX} placeholder="100–200 characters for product listing card" />
                         <p className={`text-xs mt-1 ${descTooShort || descTooLong ? "text-red-500" : "text-gray-400"}`}>
                             {descLen}/{DESC_MAX} characters {descTooShort && `(min ${DESC_MIN} required)`}
                         </p>
@@ -296,7 +271,7 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
                 </div>
             </section>
 
-            {/* ── Section: Pricing & Stock ───────────────────────────────────────── */}
+            {/* ── Section 2: Pricing & Stock ─────────────────────────────────────── */}
             <section>
                 <h3 className="font-bold text-navy text-base mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
                     <span className="w-6 h-6 rounded-lg bg-navy text-white text-xs flex items-center justify-center font-bold">2</span>
@@ -333,7 +308,7 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
                 </div>
             </section>
 
-            {/* ── Section: Product Images ────────────────────────────────────────── */}
+            {/* ── Section 3: Product Images ──────────────────────────────────────── */}
             <section>
                 <h3 className="font-bold text-navy text-base mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
                     <span className="w-6 h-6 rounded-lg bg-navy text-white text-xs flex items-center justify-center font-bold">3</span>
@@ -352,15 +327,22 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
                     </div>
                 )}
 
+                {initial && imageSlots.length > 0 && imageSlots.every(s => s.status === "done") && (
+                    <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+                        Existing images loaded. Remove and re-add any image to replace it. Unchanged images are not re-uploaded.
+                    </div>
+                )}
+
                 <ImageUploadZone
                     slots={imageSlots}
                     onChange={setImageSlots}
                     maxImages={8}
                     disabled={isSubmitting}
+                    productId={initial?.id}
                 />
             </section>
 
-            {/* ── Section: Specs & Branding ──────────────────────────────────────── */}
+            {/* ── Section 4: Specs & Branding ───────────────────────────────────── */}
             <section>
                 <h3 className="font-bold text-navy text-base mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
                     <span className="w-6 h-6 rounded-lg bg-navy text-white text-xs flex items-center justify-center font-bold">4</span>
@@ -401,7 +383,7 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
                 </div>
             </section>
 
-            {/* ── Section: Settings ─────────────────────────────────────────────── */}
+            {/* ── Section 5: Settings ───────────────────────────────────────────── */}
             <section>
                 <h3 className="font-bold text-navy text-base mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
                     <span className="w-6 h-6 rounded-lg bg-navy text-white text-xs flex items-center justify-center font-bold">5</span>
@@ -413,7 +395,8 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
                         { label: "Featured on home page", value: isFeatured, set: setIsFeatured },
                     ] as const).map(({ label, value, set }) => (
                         <label key={label} className="flex items-center gap-3 cursor-pointer">
-                            <div onClick={() => !isSubmitting && (set as (p: boolean) => void)(!value)}
+                            <div
+                                onClick={() => !isSubmitting && (set as (p: boolean) => void)(!value)}
                                 className={`w-11 h-6 rounded-full transition-colors relative ${value ? "bg-navy" : "bg-gray-300"
                                     } ${isSubmitting ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}>
                                 <span className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${value ? "translate-x-5" : ""}`} />
@@ -424,7 +407,7 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
                 </div>
             </section>
 
-            {/* ── Section: SEO ──────────────────────────────────────────────────── */}
+            {/* ── Section 6: SEO ────────────────────────────────────────────────── */}
             <section>
                 <h3 className="font-bold text-navy text-base mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
                     <span className="w-6 h-6 rounded-lg bg-navy text-white text-xs flex items-center justify-center font-bold">6</span>
@@ -462,7 +445,7 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
                 <div className="flex items-center gap-3">
                     {isSubmitting && (
                         <p className="text-xs text-gray-500 font-medium">
-                            {uploadPhase ? "Uploading images…" : "Creating product…"}
+                            {uploadPhase ? "Uploading images…" : "Saving product…"}
                         </p>
                     )}
                     <button
@@ -471,13 +454,14 @@ export default function ProductForm({ initial, onSubmit, submitLabel = "Save Pro
                         className="px-8 py-3 rounded-xl font-bold text-white text-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed min-w-[160px]"
                         style={{ background: "linear-gradient(135deg,#0D1B2A,#1A5C4A)" }}>
                         {isSubmitting
-                            ? uploadPhase
-                                ? "Uploading…"
-                                : "Saving…"
+                            ? uploadPhase ? "Uploading…" : "Saving…"
                             : submitLabel}
                     </button>
                 </div>
             </div>
+
         </form>
     );
 }
+
+

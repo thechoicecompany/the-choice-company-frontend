@@ -20,7 +20,7 @@ function ThankYouContent() {
           <div className="font-playfair text-3xl font-bold text-navy">{ref}</div>
         </div>
         <div className="flex flex-wrap justify-center gap-3">
-          <a href={`https://wa.me/918109000100?text=Ref: ${ref}`} target="_blank" rel="noopener noreferrer"
+          <a href={`https://wa.me/916268899194?text=Ref: ${ref}`} target="_blank" rel="noopener noreferrer"
             className="btn-md text-white rounded-lg" style={{ background: "#25D366" }}>💬 WhatsApp</a>
           <Link href="/products" className="btn-outline-navy">🛍 Browse More</Link>
           <Link href="/" className="btn-outline-navy">← Home</Link>
