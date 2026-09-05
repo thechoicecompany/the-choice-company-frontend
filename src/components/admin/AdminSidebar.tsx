@@ -17,15 +17,24 @@ const NAV: NavItem[] = [
     { href: "/admin/inquiries", label: "Inquiries", icon: "📋", roles: ["SUPER_ADMIN", "SALES_MANAGER", "SALES_EXECUTIVE"] },
     { href: "/admin/products", label: "Products", icon: "📦", roles: ["SUPER_ADMIN", "CONTENT_MANAGER"] },
     { href: "/admin/inventory", label: "Inventory", icon: "🏭", roles: ["SUPER_ADMIN", "CONTENT_MANAGER", "SALES_MANAGER"] },
-    // { href: "/admin/catalogue", label: "Catalogue Requests", icon: "📑", roles: ["SUPER_ADMIN", "SALES_MANAGER"] },
+    { href: "/admin/orders", label: "Sample Orders", icon: "📦" },
     {
         href: "/admin/contact-messages",
         label: "Contact Messages",
         icon: "💬",
         roles: ["SUPER_ADMIN", "SALES_MANAGER", "SALES_EXECUTIVE"]
     },
+
     { href: "/admin/sample-products", label: "Sample Shop", icon: "🛍️", roles: ["SUPER_ADMIN", "CONTENT_MANAGER"] },
     { href: "/admin/blog", label: "Blog", icon: "📝", roles: ["SUPER_ADMIN", "CONTENT_MANAGER"] },
+    { href: "/admin/gallery", label: "Gallery", icon: "🖼️", roles: ["SUPER_ADMIN", "CONTENT_MANAGER"] },
+    // In your sidebar nav items array, add:
+    {
+        href: "/admin/users",
+        label: "Users",
+        icon: "👤",
+        roles: ["SUPER_ADMIN"], // hide from other roles
+    },
 ];
 
 export default function AdminSidebar() {

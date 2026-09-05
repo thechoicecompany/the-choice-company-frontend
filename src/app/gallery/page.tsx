@@ -1,11 +1,39 @@
+// import type { Metadata } from "next";
+// import PageHero    from "@/components/layout/PageHero";
+// import GalleryGrid from "@/components/sections/gallery/GalleryGrid";
+// import { fetchGalleryItems } from "@/lib/api/gallery";
+// export const revalidate = 7200;
+// export const metadata: Metadata = { title:"Gallery", description:"Browse our corporate gifting projects." };
+// export default async function GalleryPage() {
+//   const items = await fetchGalleryItems().catch(()=>[]);
+//   return (<><PageHero title="Our Work Gallery" breadcrumbs={[{label:"Home",href:"/"},{label:"Gallery"}]} />
+//     <section className="section-py"><div className="container-site"><GalleryGrid items={items} /></div></section></>);
+// }
+
+
 import type { Metadata } from "next";
-import PageHero    from "@/components/layout/PageHero";
+import PageHero from "@/components/layout/PageHero";
 import GalleryGrid from "@/components/sections/gallery/GalleryGrid";
+import DownloadCatalogButton from "@/components/catalog/DownloadCatalogButton";
 import { fetchGalleryItems } from "@/lib/api/gallery";
+
 export const revalidate = 7200;
-export const metadata: Metadata = { title:"Gallery", description:"Browse our corporate gifting projects." };
+export const metadata: Metadata = { title: "Gallery", description: "Browse our corporate gifting projects." };
+
 export default async function GalleryPage() {
-  const items = await fetchGalleryItems().catch(()=>[]);
-  return (<><PageHero title="Our Work Gallery" breadcrumbs={[{label:"Home",href:"/"},{label:"Gallery"}]} />
-    <section className="section-py"><div className="container-site"><GalleryGrid items={items} /></div></section></>);
+  const items = await fetchGalleryItems().catch(() => []);
+  return (
+    <>
+      <PageHero title="Our Work Gallery" breadcrumbs={[{ label: "Home", href: "/" }, { label: "Gallery" }]} />
+      <section className="section-py">
+        <div className="container-site">
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-sm text-gray-500">{items.length} project{items.length !== 1 ? "s" : ""}</p>
+            <DownloadCatalogButton />
+          </div>
+          <GalleryGrid items={items} />
+        </div>
+      </section>
+    </>
+  );
 }

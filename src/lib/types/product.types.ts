@@ -48,10 +48,11 @@ export interface ProductFilters {
   category?: string;
   budget?: string;
   occasion?: string;
+  moq?: string;   // ← add this
   sort?: string;
   page?: number;
-  moq?: number;
 }
+
 
 export interface PaginatedResponse<T> {
   data: T[];

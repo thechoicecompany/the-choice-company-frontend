@@ -1,64 +1,138 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
-import type { GalleryItem } from "@/lib/api/gallery";
+import type { GalleryItem, FileType } from "@/lib/api/gallery";
+import { isCatalogUnlocked } from "@/lib/hooks/useCatalogueRequest";
+import { useLazyLoad } from "@/lib/hooks/useLazyLoad";
+import GalleryLightbox from "./GalleryLightbox";
+import CatalogGateModal from "@/components/catalog/CatalogGateModal";
 
-const TABS = ["All","products","packaging","branding","events","corporate"] as const;
-const FALLBACK: GalleryItem[] = Array.from({length:12},(_,i) => ({
-  id: i+1, image:"/images/gallery/placeholder.jpg", caption:`Project ${i+1}`,
-  category: (["products","packaging","branding","events","corporate"] as const)[i%5],
-  projectName:`Corporate Gift Project ${i+1}`,
-}));
+const TABS = ["All", "products", "packaging", "branding", "events", "corporate"] as const;
+
+const TYPE_ICON: Record<FileType, string> = {
+  image: "🖼", pdf: "📄", poster: "🗞", document: "📑", video: "🎬",
+};
+const TYPE_LABEL: Record<FileType, string> = {
+  image: "Image", pdf: "PDF", poster: "Poster", document: "Doc", video: "Video",
+};
+const HEIGHT_MAP = [220, 280, 240, 300, 260];
+
+function GalleryCard({
+  item, index, onClick,
+}: {
+  item: GalleryItem;
+  index: number;
+  onClick: (item: GalleryItem) => void;
+}) {
+  const { ref, isVisible } = useLazyLoad();
+  const height = HEIGHT_MAP[index % HEIGHT_MAP.length];
+  const icon = TYPE_ICON[item.fileType] ?? "📁";
+  const label = TYPE_LABEL[item.fileType] ?? "File";
+
+  return (
+    <div
+      ref={ref}
+      onClick={() => onClick(item)}
+      className="group cursor-pointer break-inside-avoid mb-4"
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? "translateY(0)" : "translateY(16px)",
+        transition: `opacity 0.4s ease ${(index % 6) * 60}ms, transform 0.4s ease ${(index % 6) * 60}ms`,
+      }}
+    >
+      <div className="relative overflow-hidden bg-gray-100 rounded-t-2xl" style={{ height }}>
+        {isVisible && item.thumbnailUrl ? (
+          <Image
+            src={item.thumbnailUrl}
+            alt={item.projectName}
+            fill
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            className="object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse" />
+        )}
+
+        <span className="absolute top-2 left-2 badge-gray text-[10px] font-semibold backdrop-blur-sm bg-white/80">
+          {icon} {label}
+        </span>
+
+        <div className="absolute inset-0 bg-navy/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+          <span className="text-white text-sm font-medium tracking-wide">Open ↗</span>
+        </div>
+      </div>
+
+      <div className="p-3 border border-t-0 border-gray-100 rounded-b-2xl bg-white">
+        <p className="text-xs font-semibold text-navy truncate">{item.projectName}</p>
+        <div className="flex items-center justify-between mt-1">
+          <span className="badge-gray text-[10px] capitalize">{item.category}</span>
+          {item.clientIndustry && (
+            <span className="text-[10px] text-gray-400 truncate max-w-[80px]">{item.clientIndustry}</span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
-  const [tab,      setTab]      = useState("All");
-  const [lightbox, setLightbox] = useState<GalleryItem|null>(null);
-  const data = items.length > 0 ? items : FALLBACK;
-  const filtered = tab === "All" ? data : data.filter(i => i.category === tab);
+  const [tab, setTab] = useState<string>("All");
+  const [lightboxItem, setLightboxItem] = useState<GalleryItem | null>(null);
+  // Item the user tried to open before passing the contact gate
+  const [pendingItem, setPendingItem] = useState<GalleryItem | null>(null);
+
+  const filtered = useMemo(
+    () => (tab === "All" ? items : items.filter((i) => i.category === tab)),
+    [items, tab]
+  );
+
+  function handleCardClick(item: GalleryItem) {
+    if (isCatalogUnlocked()) {
+      setLightboxItem(item);
+    } else {
+      setPendingItem(item);
+    }
+  }
+
+  function handleGateSuccess() {
+    setLightboxItem(pendingItem);
+    setPendingItem(null);
+  }
 
   return (
     <>
-      {/* Tabs */}
       <div className="flex flex-wrap gap-2 mb-8">
-        {TABS.map(t => (
-          <button key={t} onClick={() => setTab(t)}
-            className={`badge capitalize ${tab === t ? "badge-navy" : "badge-gray"}`}>
+        {TABS.map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`badge capitalize transition-colors ${tab === t ? "badge-navy" : "badge-gray"}`}
+          >
             {t}
           </button>
         ))}
       </div>
-      {/* Grid */}
-      <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-        {filtered.map(item => (
-          <div key={item.id} className="card group cursor-pointer break-inside-avoid"
-            onClick={() => setLightbox(item)}>
-            <div className="relative bg-gray-100 overflow-hidden" style={{ height: `${160 + (item.id % 3) * 60}px` }}>
-              <div className="w-full h-full flex items-center justify-center text-5xl bg-gradient-to-br from-gray-100 to-gray-200">🎁</div>
-              <div className="absolute inset-0 bg-navy/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span className="text-white text-sm font-medium">View ⛶</span>
-              </div>
-            </div>
-            <div className="p-3">
-              <p className="text-xs font-semibold text-navy">{item.projectName}</p>
-              <span className="badge-gray text-[10px] mt-1">{item.category}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-      {/* Lightbox */}
-      {lightbox && (
-        <div className="fixed inset-0 z-[600] bg-black/90 flex items-center justify-center p-4"
-          onClick={() => setLightbox(null)}>
-          <div className="bg-white rounded-2xl overflow-hidden max-w-2xl w-full" onClick={e => e.stopPropagation()}>
-            <div className="h-72 bg-gray-100 flex items-center justify-center text-7xl">🎁</div>
-            <div className="p-5">
-              <h3 className="font-bold text-navy">{lightbox.projectName}</h3>
-              <p className="text-sm text-gray-500">{lightbox.caption}</p>
-            </div>
-          </div>
-          <button onClick={() => setLightbox(null)}
-            className="absolute top-4 right-4 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 text-xl">✕</button>
+
+      {filtered.length === 0 ? (
+        <p className="text-gray-400 text-sm text-center py-20">No items in this category yet.</p>
+      ) : (
+        <div className="columns-2 md:columns-3 lg:columns-4 gap-4">
+          {filtered.map((item, i) => (
+            <GalleryCard key={item.id} item={item} index={i} onClick={handleCardClick} />
+          ))}
         </div>
+      )}
+
+      {lightboxItem && (
+        <GalleryLightbox item={lightboxItem} onClose={() => setLightboxItem(null)} />
+      )}
+
+      {pendingItem && (
+        <CatalogGateModal
+          onClose={() => setPendingItem(null)}
+          onSuccess={handleGateSuccess}
+        />
       )}
     </>
   );

@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
         forwardForm.append("file", file);
         forwardForm.append("folder", folder);
 
-        const apiUrl = process.env.BACKEND_API_URL ?? "http://localhost:8089";
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
         const springRes = await fetch(`${apiUrl}/api/upload/image`, {
             method: "POST",

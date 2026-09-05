@@ -9,20 +9,31 @@ function BudgetFilterContent() {
   const active = params.get("budget");
 
   const select = (value: string) => {
-    router.push(`/products?budget=${value}`);
+    const p = new URLSearchParams(params.toString());
+    // Toggle: clicking active budget deselects it
+    if (p.get("budget") === value) {
+      p.delete("budget");
+    } else {
+      p.set("budget", value);
+    }
+    p.delete("page");
+    router.push(`/products?${p.toString()}`);
   };
 
   return (
     <div className="flex flex-wrap items-center gap-3 justify-center">
       <span className="section-label !mb-0 !text-xs">SHOP BY BUDGET:</span>
       {BUDGET_RANGES.map((b) => (
-        <button key={b.value} onClick={() => select(b.value)}
+        <button
+          key={b.value}
+          onClick={() => select(b.value)}
           className={`px-5 py-2 rounded-md text-sm font-medium border-2 transition-all ${active === b.value
             ? "bg-navy text-white border-navy"
             : b.isLuxury
               ? "border-gold text-gold hover:bg-gold hover:text-white"
               : "border-gray-200 text-gray-600 hover:border-navy hover:text-navy"
-            }`}>
+            }`}
+        >
           {b.isLuxury ? "💎 " : ""}{b.label}
         </button>
       ))}

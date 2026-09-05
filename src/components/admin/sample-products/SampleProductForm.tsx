@@ -9,10 +9,17 @@ interface Props {
     onSubmit: (payload: CreateSampleProductPayload) => Promise<void>;
     submitLabel?: string;
 }
-
 const CATEGORIES = [
-    "Drinkware", "Bags", "Eco-Friendly", "Desk Essentials", "Festive Hampers",
-    "Employee Kits", "Electronics", "Stationery",
+    // Festive & occasion-based
+    "Diwali Gifts", "Holi Gifts", "New Year Gifts", "Christmas Gifts", "Festive Hampers",
+
+    // Product-type categories
+    "Gift Hampers", "Laptop Bags", "Backpacks", "Trolley Bags", "Drinkware", "Office Essentials",
+    "Apparel", "Travel Kits", "Electronics", "Eco-Friendly Gifts", "Premium Gifts", "Custom Merchandise",
+
+    // Corporate occasion categories
+    "Employee Welcome", "Work Anniversary", "Client Appreciation", "Conference Kits",
+    "Retirement Gifts", "Wedding Gifts", "Dealer Meet Gifts", "Women's Day",
 ];
 const BRANDING_OPTS = [
     "Screen Print", "Embroidery", "Laser Engrave", "Debossing", "UV Print", "Sticker Label", "Patch Label",

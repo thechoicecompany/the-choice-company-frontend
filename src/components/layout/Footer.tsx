@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import NewsletterForm from "./NewsletterForm";
+import { Label } from "recharts";
 
 const QUICK_LINKS = [
   { label: "About Us", href: "/about" },
@@ -11,6 +12,8 @@ const QUICK_LINKS = [
   { label: "Gallery", href: "/gallery" },
   { label: "Blog", href: "/blog" },
   { label: "Contact Us", href: "/contact" },
+  // In your footer links or header nav
+  { label: "Track Order", href: "/track-order" },
 ];
 
 const CATEGORIES = [

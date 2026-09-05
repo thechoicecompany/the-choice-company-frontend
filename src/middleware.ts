@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
 // ─── Verify JWT by asking the backend — no secret needed on the frontend ──
 async function verifyJwt(token: string): Promise<boolean> {
   try {
-    const backendUrl = process.env.BACKEND_API_URL ?? "http://localhost:8089";
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
     const res = await fetch(`${backendUrl}/api/auth/verify`, {
       headers: { Authorization: `Bearer ${token}` },
     });

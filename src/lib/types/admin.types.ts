@@ -260,3 +260,52 @@ export interface ContactMessage {
   createdAt: string;
   updatedAt: string;
 }
+// // ── DEMO ORDERS ───────────────────────────────────────────────────────────────
+export type DemoOrderStatus =
+  | "PAYMENT_PENDING"
+  | "PAID"
+  | "PROCESSING"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "CANCELLED"
+  | "REFUNDED";
+
+export interface DemoOrderSummaryDto {
+  orderId: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  productName: string;
+  quantity: number;
+  status: DemoOrderStatus;
+  createdAt: string;
+}
+
+export interface OrderItem {
+  name: string;
+  quantity: number;
+  subtotal: number;
+}
+
+export interface ShippingAddress {
+  city?: string;
+  state?: string;
+  trackingNumber?: string;
+  courierName?: string;
+  statusNote?: string;
+}
+
+export interface DemoOrderDetailDto extends DemoOrderSummaryDto {
+  companyName?: string;
+  message?: string;
+  notes?: string;
+  updatedAt: string;
+  shippingAddress?: ShippingAddress;
+  items: OrderItem[];
+}
+
+export interface UpdateOrderStatusRequest {
+  status: DemoOrderStatus;
+  trackingNumber?: string;
+  notes?: string;
+}

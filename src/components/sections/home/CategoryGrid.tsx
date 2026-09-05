@@ -50,7 +50,8 @@ export default function CategoryGrid() {
           <button onClick={() => scroll("l")} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 -translate-x-3 w-9 h-9 bg-white rounded-full shadow-md flex items-center justify-center hover:shadow-lg" aria-label="Scroll left">‹</button>
           <div ref={ref} className="flex gap-4 overflow-x-auto no-scrollbar px-2 pb-2">
             {CATEGORIES.map((cat) => (
-              <Link key={cat.slug} href={`/products?category=${cat.slug}`}
+              <Link key={cat.slug} href={`/products/category/${cat.slug}`}
+                //  href={`/products?category=${cat.slug}`}
                 className="flex-shrink-0 w-[120px] group">
                 <div className="w-full aspect-square rounded-2xl bg-white border border-gray-100 flex items-center justify-center text-4xl group-hover:border-gold group-hover:shadow-md transition-all mb-2">
                   {cat.emoji}

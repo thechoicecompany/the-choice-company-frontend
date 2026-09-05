@@ -11,18 +11,42 @@ interface Props {
 }
 
 const CATEGORIES = [
-    { label: "Drinkware", slug: "drinkware" },
-    { label: "Bags", slug: "bags" },
-    { label: "Eco-Friendly", slug: "eco-friendly" },
-    { label: "Desk Essentials", slug: "desk-essentials" },
+    // Festive & Occasion-Based
+    { label: "Diwali Gifts", slug: "diwali-gifts" },
+    { label: "Holi Gifts", slug: "holi-gifts" },
+    { label: "New Year Gifts", slug: "new-year-gifts" },
+    { label: "Christmas Gifts", slug: "christmas-gifts" },
     { label: "Festive Hampers", slug: "festive-hampers" },
-    { label: "Employee Kits", slug: "employee-kits" },
-    { label: "Electronics", slug: "electronics" },
+
+    // Product-Type Categories
+    { label: "Gift Hampers", slug: "gift-hampers" },
+    { label: "Bags", slug: "bags" },
+    { label: "Laptop Bags", slug: "laptop-bags" },
+    { label: "Backpacks", slug: "backpacks" },
+    { label: "Trolley Bags", slug: "trolley-bags" },
+    { label: "Drinkware", slug: "drinkware" },
+    { label: "Desk Essentials", slug: "desk-essentials" },
+    { label: "Office Essentials", slug: "office-essentials" },
     { label: "Stationery", slug: "stationery" },
     { label: "Apparel", slug: "apparel" },
-    { label: "Premium Gifts", slug: "premium-gifts" },
+    { label: "Travel Kits", slug: "travel-kits" },
+    { label: "Electronics", slug: "electronics" },
     { label: "Sports", slug: "sports" },
     { label: "Wellness", slug: "wellness" },
+    { label: "Eco-Friendly Gifts", slug: "eco-friendly-gifts" },
+    { label: "Premium Gifts", slug: "premium-gifts" },
+    { label: "Custom Merchandise", slug: "custom-merchandise" },
+
+    // Corporate & Employee Categories
+    { label: "Employee Welcome", slug: "employee-welcome" },
+    { label: "Employee Kits", slug: "employee-kits" },
+    { label: "Work Anniversary", slug: "work-anniversary" },
+    { label: "Client Appreciation", slug: "client-appreciation" },
+    { label: "Conference Kits", slug: "conference-kits" },
+    { label: "Retirement Gifts", slug: "retirement-gifts" },
+    { label: "Wedding Gifts", slug: "wedding-gifts" },
+    { label: "Dealer Meet Gifts", slug: "dealer-meet-gifts" },
+    { label: "Women's Day", slug: "womens-day" },
 ];
 
 const BRANDING_OPTS = [

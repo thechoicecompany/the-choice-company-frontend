@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { InquirySchema } from "@/lib/validations/inquiry.schema";
-import { springApi } from "@/lib/api/client";
+import { springApi, ApiError } from "@/lib/api/client";
 import { sendWhatsAppAlert } from "@/lib/utils/sendWhatsApp";
 import { sendAckEmail } from "@/lib/utils/sendEmail";
 import { generateRef } from "@/lib/utils/generateRef";
@@ -27,6 +27,17 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     if (error instanceof ZodError)
       return NextResponse.json({ success: false, error: "Validation failed", details: error.errors }, { status: 400 });
+
+    // FIX: now this actually works, since ApiError carries status/retryAfter
+    if (error instanceof ApiError) {
+      const headers: Record<string, string> = {};
+      if (error.retryAfter) headers["Retry-After"] = error.retryAfter;
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: error.status ?? 502, headers }
+      );
+    }
+
     console.error("Inquiry error:", error);
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }

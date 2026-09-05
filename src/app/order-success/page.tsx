@@ -1,5 +1,4 @@
 
-
 "use client";
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -104,6 +103,12 @@ function OrderSuccessContent() {
             style={{ background: "#25D366" }}>
             💬 WhatsApp Us
           </a>
+          <Link
+            href={`/track-order?orderId=${orderId}`}
+            className="btn-outline-navy"
+          >
+            📦 Track This Order
+          </Link>
           <Link href="/shop" className="btn-outline-navy">🛍 Shop More Samples</Link>
           <Link href="/" className="btn-outline-navy">← Home</Link>
         </div>

@@ -46,11 +46,16 @@ export default function CheckoutPage() {
     };
 
     // ── Validation ─────────────────────────────────────────────────────────────
+    // Replace your validate() function entirely
     const validate = () => {
         const e: Record<string, string> = {};
         if (!form.name.trim()) e.name = "Full name is required";
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Valid email required";
-        if (!/^[6-9]\d{9}$/.test(form.phone)) e.phone = "Valid 10-digit mobile required";
+
+        // Strip leading 0 before checking — handles both 9876500000 and 09876500000
+        const normalizedPhone = form.phone.replace(/^(\+91|91|0)/, "");
+        if (!/^[6-9]\d{9}$/.test(normalizedPhone)) e.phone = "Valid 10-digit mobile required (e.g. 9876500000)";
+
         if (!form.line1.trim()) e.line1 = "Address is required";
         if (!form.city.trim()) e.city = "City is required";
         if (!form.state) e.state = "State is required";

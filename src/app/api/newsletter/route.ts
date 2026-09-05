@@ -24,12 +24,16 @@ export async function POST(req: NextRequest) {
     if (isAxiosError(err)) {
       console.error("Newsletter subscribe failed:", err.response?.status, err.response?.data);
 
+      const retryAfter = err.response?.headers?.["retry-after"];
+      const headers: Record<string, string> = {};
+      if (retryAfter) headers["Retry-After"] = String(retryAfter);
+
       if (err.response?.status === 409) {
-        return NextResponse.json({ error: "Already subscribed" }, { status: 409 });
+        return NextResponse.json({ error: "Already subscribed" }, { status: 409, headers });
       }
       return NextResponse.json(
         { error: err.response?.data?.error ?? "Subscription failed" },
-        { status: err.response?.status ?? 502 }
+        { status: err.response?.status ?? 502, headers }
       );
     }
 

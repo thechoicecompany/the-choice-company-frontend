@@ -8,7 +8,13 @@ export const revalidate = 3600;
 
 interface Props {
     params: Promise<{ category: string }>;
-    searchParams: Promise<{ budget?: string; occasion?: string; sort?: string; page?: string }>;
+    searchParams: Promise<{
+        budget?: string;
+        occasion?: string;
+        moq?: string;   // ← added
+        sort?: string;
+        page?: string;
+    }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -29,6 +35,7 @@ export default async function ProductCategoryPage({ params, searchParams }: Prop
         category,
         budget: p.budget,
         occasion: p.occasion,
+        moq: p.moq,             // ← added
         sort: p.sort || "popular",
         page: Number(p.page) || 1,
     }).catch(() => ({ data: [], total: 0, page: 1, perPage: 24, totalPages: 0 }));
@@ -40,7 +47,11 @@ export default async function ProductCategoryPage({ params, searchParams }: Prop
             <PageHero
                 title={label}
                 subtitle="Premium corporate gifts with custom branding"
-                breadcrumbs={[{ label: "Home", href: "/" }, { label: "Products", href: "/products" }, { label }]}
+                breadcrumbs={[
+                    { label: "Home", href: "/" },
+                    { label: "Products", href: "/products" },
+                    { label },
+                ]}
             />
             <section className="section-py">
                 <div className="container-site">

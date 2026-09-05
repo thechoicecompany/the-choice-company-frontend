@@ -647,7 +647,7 @@ For new developers, provide:
 Example structure:
 
 # Spring Boot Backend
-NEXT_PUBLIC_API_URL=http://localhost:8080
+NEXT_PUBLIC_API_URL=http://localhost:8089
 
 # Anthropic Claude
 ANTHROPIC_API_KEY=

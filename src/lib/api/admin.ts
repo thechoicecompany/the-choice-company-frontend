@@ -6,11 +6,11 @@ import type {
     ContactMessage, ContactStatus,
 } from "@/lib/types/admin.types";
 
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8089";
+const BASE = process.env.NEXT_PUBLIC_API_URL;
 
 
 // ── Core fetch wrapper ────────────────────────────────────────────────────────
-async function adminFetch<T>(
+export async function adminFetch<T>(
     path: string,
     options: RequestInit = {}
 ): Promise<T> {

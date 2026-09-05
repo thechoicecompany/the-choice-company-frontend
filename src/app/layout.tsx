@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "sw
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#0D1B2A" };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
   title: {
     template: "%s | The Choice Company",
     default: "India's Trusted Corporate Gifting Partner | The Choice Company",
