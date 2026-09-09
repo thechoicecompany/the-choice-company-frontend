@@ -35,6 +35,12 @@ const NAV: NavItem[] = [
         icon: "👤",
         roles: ["SUPER_ADMIN"], // hide from other roles
     },
+    {
+        href: "/admin/hero-banners",
+        label: "Hero Banners",
+        icon: "🖼️",
+        roles: ["SUPER_ADMIN", "CONTENT_MANAGER"]
+    },
 ];
 
 export default function AdminSidebar() {

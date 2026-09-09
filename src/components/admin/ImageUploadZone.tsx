@@ -143,66 +143,6 @@ export default function ImageUploadZone({
     dragIndexRef.current = null;
   }
 
-  // ── Upload all pending slots ───────────────────────────────────────────────
-  // This is called by the parent form before submit.
-  // Returns updated slots with Cloudinary URLs filled in.
-  // (Parent calls uploadAll() then reads slots[i].url)
-  const uploadAll = useCallback(async (): Promise<ImageSlot[]> => {
-    const token = localStorage.getItem("tcc_admin_token");
-
-    const updated = [...slots];
-
-    for (let i = 0; i < updated.length; i++) {
-      if (updated[i].status === "done") continue; // already uploaded
-
-      // Mark uploading
-      updated[i] = { ...updated[i], status: "uploading", progress: 10 };
-      onChange([...updated]);
-
-      try {
-        const form = new FormData();
-        form.append("file", updated[i].file);
-        form.append("folder", "tcc/products");
-
-        const res = await fetch("/api/admin/upload/image", {
-          method: "POST",
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-          body: form,
-        });
-
-        // Simulate progress
-        updated[i] = { ...updated[i], progress: 70 };
-        onChange([...updated]);
-
-        const json = await res.json();
-        if (!res.ok || !json.success) {
-          throw new Error(json.message ?? "Upload failed");
-        }
-
-        updated[i] = {
-          ...updated[i],
-          status: "done",
-          progress: 100,
-          url: json.data.url,
-          publicId: json.data.publicId ?? "",
-        };
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : "Upload failed";
-        updated[i] = { ...updated[i], status: "error", error: msg };
-      }
-
-      onChange([...updated]);
-    }
-
-    return updated;
-  }, [slots, onChange]);
-
-  // Expose uploadAll to parent via ref — parent calls zoneRef.current.uploadAll()
-  // We do this via a returned object from the hook instead.
-  // Parent will call the uploadAll fn passed back via onChange metadata.
-  // For simplicity, we expose it on window temporarily during submit — 
-  // Instead, parent passes an `onUploadAll` ref. See ProductForm for wiring.
-
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-4">
@@ -338,7 +278,6 @@ export async function uploadSlots(
   slots: ImageSlot[],
   onChange: (s: ImageSlot[]) => void,
 ): Promise<ImageSlot[]> {
-  const token = localStorage.getItem("tcc_admin_token");
   const updated = [...slots];
 
   for (let i = 0; i < updated.length; i++) {
@@ -352,9 +291,8 @@ export async function uploadSlots(
       form.append("file", updated[i].file);
       form.append("folder", "tcc/products");
 
-      const res = await fetch("/api/admin/upload/image", {
+      const res = await fetch("/api/proxy/api/upload/image", {
         method: "POST",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: form,
       });
 

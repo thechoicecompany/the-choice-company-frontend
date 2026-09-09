@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import HeroBanner from "@/components/sections/home/HeroBanner";
+import HeroBannerServer from "@/components/hero-banner/HeroBannerServer";
 import CategoryGrid from "@/components/sections/home/CategoryGrid";
 import FeaturedProducts from "@/components/sections/home/FeaturedProducts";
 import IndustriesStrip from "@/components/sections/home/IndustriesStrip";
@@ -21,7 +21,7 @@ export default async function HomePage() {
   return (
     <>
       <SchemaMarkup schema={{ "@context": "https://schema.org", "@type": "Organization", name: "The Choice Company", url: "https://thechoicecompany.in" }} />
-      <HeroBanner />
+      <HeroBannerServer />
       <CategoryGrid />
       <FeaturedProducts products={featuredProducts} />
       <IndustriesStrip />

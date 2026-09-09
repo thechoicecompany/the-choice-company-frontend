@@ -6,34 +6,29 @@ import type {
     ContactMessage, ContactStatus,
 } from "@/lib/types/admin.types";
 
-const BASE = process.env.NEXT_PUBLIC_API_URL;
-
+// Routes through the Next.js proxy instead of hitting Spring Boot directly.
+// The JWT lives only in the httpOnly `tcc_admin_token` cookie — the browser
+// attaches it automatically on same-origin requests, and the proxy route
+// reads it server-side to set Authorization: Bearer <token> for Spring Boot.
+const BASE = "/api/proxy";
 
 // ── Core fetch wrapper ────────────────────────────────────────────────────────
 export async function adminFetch<T>(
     path: string,
     options: RequestInit = {}
 ): Promise<T> {
-    const token =
-        typeof window !== "undefined"
-            ? localStorage.getItem("tcc_admin_token")
-            : null;
-
     const res = await fetch(`${BASE}${path}`, {
         ...options,
         headers: {
             "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
             ...(options.headers ?? {}),
         },
     });
 
     // ── 401: session expired or token invalid ────────────────────────────────
     if (res.status === 401 && typeof window !== "undefined") {
-        localStorage.removeItem("tcc_admin_token");
-        localStorage.removeItem("tcc_admin_user");
-        document.cookie =
-            "tcc_admin_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+        // The httpOnly cookie can't be cleared from JS — middleware clears it
+        // server-side on the next request once it sees an invalid/expired token.
         window.location.href = "/admin/login?reason=session_expired";
         // Return a never-resolving promise — navigation is in progress
         return new Promise(() => { });
@@ -66,12 +61,6 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
 }
 
 // ── PRODUCT WITH IMAGES ───────────────────────────────────────────────────────
-/**
- * Creates a product + saves image metadata in one JSON call.
- * Images are already uploaded to Cloudinary by the frontend (via uploadSlots).
- * This sends the product data + resolved Cloudinary URLs to the backend.
- * Backend saves Product + ProductImage records in one transaction.
- */
 export async function createProductWithImages(
     payload: Record<string, unknown>
 ): Promise<AdminProduct> {
@@ -82,23 +71,14 @@ export async function createProductWithImages(
     return res.data;
 }
 
-/**
- * Bulk-upload images via backend in one multipart request.
- * Use when you want backend to handle all uploads in one shot.
- * Returns array of { url, publicId } from Cloudinary.
- */
 export async function uploadImagesBulk(
     files: File[]
 ): Promise<Array<{ url: string; publicId: string }>> {
-    const token = typeof window !== "undefined"
-        ? localStorage.getItem("tcc_admin_token") : null;
-
     const form = new FormData();
     files.forEach(f => form.append("files", f));
 
     const res = await fetch(`${BASE}/api/upload/images/bulk`, {
         method: "POST",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: form,
     });
     const json = await res.json();
@@ -271,9 +251,7 @@ export async function deleteProductImage(
     });
 }
 
-
 // ── CONTACT MESSAGES ──────────────────────────────────────────────────────────
-// NEW — mirrors fetchInquiries/updateInquiryStatus exactly, hits ContactController.
 export async function fetchContactMessages(params: {
     page?: number; size?: number; status?: ContactStatus;
 }): Promise<PagedResponse<ContactMessage>> {

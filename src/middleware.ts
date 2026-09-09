@@ -1,66 +1,67 @@
 ﻿// src/middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { verifyAdminJwt as verifyJwt } from "@/lib/auth/jwt";
 
-// ─── Verify JWT by asking the backend — no secret needed on the frontend ──
-async function verifyJwt(token: string): Promise<boolean> {
-  try {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL;
-    const res = await fetch(`${backendUrl}/api/auth/verify`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return res.ok;
-  } catch {
-    return false;
-  }
+// ── Cookie helper: clear tcc_admin_token and redirect ─────────────────────────
+function clearTokenAndRedirect(destination: URL): NextResponse {
+  const res = NextResponse.redirect(destination);
+  res.cookies.set("tcc_admin_token", "", {
+    httpOnly: true,
+    secure: process.env.COOKIE_SECURE !== "false",
+    sameSite: "lax",
+    maxAge: 0,
+    path: "/",
+  });
+  return res;
 }
 
-// ─── Middleware ───────────────────────────────────────────────────────────────
-
+// ── Middleware ─────────────────────────────────────────────────────────────────
 export async function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
-  // ── Legacy /products?category=X → /products/category/X (SEO redirect) ──
+  // Legacy /products?category=X → /products/category/X (301 — SEO)
   if (pathname === "/products" && searchParams.has("category")) {
-    const category = searchParams.get("category")!;
     const url = request.nextUrl.clone();
-    url.pathname = `/products/category/${category}`;
+    url.pathname = `/products/category/${searchParams.get("category")!}`;
     url.searchParams.delete("category");
     return NextResponse.redirect(url, 301);
   }
 
-  const isAdminRoute = pathname.startsWith("/admin");
-  if (!isAdminRoute) return NextResponse.next();
-
-  const tokenValue = request.cookies.get("tcc_admin_token")?.value;
-  const isLoginPage = pathname === "/admin/login";
-
-  if (isLoginPage && tokenValue) {
-    const valid = await verifyJwt(tokenValue);
-    if (valid) {
-      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
-    }
-    const res = NextResponse.next();
-    res.cookies.delete("tcc_admin_token");
-    return res;
+  if (!pathname.startsWith("/admin")) {
+    return NextResponse.next();
   }
 
-  if (!isLoginPage && !tokenValue) {
+  const token = request.cookies.get("tcc_admin_token")?.value;
+  const isLoginPage = pathname === "/admin/login";
+
+  // ── No token ───────────────────────────────────────────────────────────────
+  if (!token) {
+    if (isLoginPage) return NextResponse.next();
+
     const loginUrl = new URL("/admin/login", request.url);
     loginUrl.searchParams.set("from", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (!isLoginPage && tokenValue) {
-    const valid = await verifyJwt(tokenValue);
-    if (!valid) {
-      const loginUrl = new URL("/admin/login", request.url);
-      loginUrl.searchParams.set("from", pathname);
-      loginUrl.searchParams.set("reason", "session_expired");
-      const res = NextResponse.redirect(loginUrl);
-      res.cookies.delete("tcc_admin_token");
-      return res;
+  // ── Has token — verify once ────────────────────────────────────────────────
+  const payload = await verifyJwt(token);
+
+  if (isLoginPage) {
+    if (payload) {
+      // Already authenticated — go to dashboard
+      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     }
+    // Stale / tampered token on login page — clear and proceed
+    return clearTokenAndRedirect(new URL("/admin/login", request.url));
+  }
+
+  // ── Protected route ────────────────────────────────────────────────────────
+  if (!payload) {
+    const loginUrl = new URL("/admin/login", request.url);
+    loginUrl.searchParams.set("from", pathname);
+    loginUrl.searchParams.set("reason", "session_expired");
+    return clearTokenAndRedirect(loginUrl);
   }
 
   return NextResponse.next();
@@ -69,3 +70,5 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: ["/admin/:path*", "/products"],
 };
+
+

@@ -37,22 +37,21 @@ springApi.interceptors.response.use(
       console.error(`[Spring Boot API] ${msg}`, { url: error.config?.url, status });
     }
 
-    // FIX: carry status + retryAfter forward instead of a bare Error
     return Promise.reject(new ApiError(msg, status, retryAfter));
   }
 );
 
-// ─── Admin client (unchanged, but see note below) ───────
+// ─── Admin client ───────────────────────────────────────────────────────────
+// Routes through /api/proxy instead of hitting Spring Boot directly.
+// The JWT lives only in the httpOnly `tcc_admin_token` cookie — the browser
+// sends it automatically on same-origin requests, and the proxy route reads
+// it server-side to attach the Authorization header Spring Boot expects.
+// There is no token in localStorage anymore, so we no longer try to read
+// one here.
 export const adminApi = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: "/api/proxy",
   headers: { "Content-Type": "application/json" },
   timeout: 10_000,
-});
-
-adminApi.interceptors.request.use((config) => {
-  const token = typeof window !== "undefined" ? localStorage.getItem("tcc_admin_token") : null;
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
 });
 
 adminApi.interceptors.response.use(
@@ -63,10 +62,9 @@ adminApi.interceptors.response.use(
     const retryAfter = error.response?.headers?.["retry-after"] ?? null;
 
     if (status === 401 && typeof window !== "undefined") {
-      localStorage.removeItem("tcc_admin_token");
-      localStorage.removeItem("tcc_admin_user");
-      document.cookie = "tcc_admin_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
-      window.location.href = "/admin/login";
+      // The httpOnly cookie can't be cleared from JS — middleware clears it
+      // server-side on the next request once it sees an invalid/expired token.
+      window.location.href = "/admin/login?reason=session_expired";
     }
 
     console.error(`[Admin API] ${msg}`, { url: error.config?.url, status });
