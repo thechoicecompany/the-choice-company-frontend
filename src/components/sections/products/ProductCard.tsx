@@ -5,7 +5,7 @@ import ImageCarousel from "@/components/shared/ImageCarousel"; // move carousel 
 
 function getImageList(product: Product): string[] {
   if (product.productImages && product.productImages.length > 0) {
-    return product.productImages
+    return [...product.productImages]
       .sort((a, b) => a.sortOrder - b.sortOrder)
       .map(img => img.listingUrl ?? img.imageUrl);
   }
@@ -62,7 +62,7 @@ export default function ProductCard({ product, onQuote }: Props) {
           <Link href={`/products/${product.slug}`} className="btn-sm btn-outline-navy flex-1 text-center">
             View Details
           </Link>
-          <button onClick={() => onQuote?.(product)} className="btn-sm btn-gold flex-1">
+          <button type="button" onClick={() => onQuote?.(product)} className="btn-sm btn-gold flex-1">
             Get Quote
           </button>
         </div>
@@ -70,3 +70,4 @@ export default function ProductCard({ product, onQuote }: Props) {
     </div>
   );
 }
+

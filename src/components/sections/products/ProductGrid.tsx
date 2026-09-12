@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import ProductCard from "./ProductCard";
-import QuickInquiryForm from "./QuickInquiryForm";
+import QuickInquiryForm from "../../forms/QuickInquiryForm";
 import type { Product } from "@/lib/types/product.types";
 
 interface Props { products: Product[]; total: number; }
@@ -66,3 +66,4 @@ export default function ProductGrid({ products, total }: Props) {
     </>
   );
 }
+

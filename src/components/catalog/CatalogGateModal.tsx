@@ -8,9 +8,37 @@ interface Props {
     onSuccess?: () => void;
 }
 
+// Cross-origin-safe download: a plain <a download> anchor is ignored by the
+// browser for cross-origin URLs (Cloudinary/S3 etc.) — it just navigates/opens
+// the file instead of saving it. Fetching as a blob and downloading that blob
+// URL works regardless of origin, as long as the source allows CORS reads.
+// If CORS isn't configured on the bucket/Cloudinary, this falls back to
+// opening the file in a new tab so the user can still get it manually.
+async function downloadFile(url: string, filename: string) {
+    try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(blobUrl);
+    } catch {
+        // Fallback: CORS not configured, or the fetch failed — open in a new
+        // tab so the user can still save it manually (Ctrl/Cmd+S).
+        window.open(url, "_blank", "noopener,noreferrer");
+    }
+}
+
 export default function CatalogGateModal({ onClose, onSuccess }: Props) {
     const { form, onSubmit, status, downloadUrl, errorMessage } = useCatalogueRequest();
     const { register, formState: { errors } } = form;
+
+
 
     useEffect(() => {
         if (status !== "success") return;
@@ -18,12 +46,7 @@ export default function CatalogGateModal({ onClose, onSuccess }: Props) {
         // Only the static "get full catalogue" flow returns a downloadUrl —
         // gallery-gate submissions won't, so this stays a no-op for that case.
         if (downloadUrl) {
-            const a = document.createElement("a");
-            a.href = downloadUrl;
-            a.download = "the-choice-company-catalogue.pdf";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
+            void downloadFile(downloadUrl, "the-choice-company-catalogue.pdf");
         }
 
         if (typeof window !== "undefined") {

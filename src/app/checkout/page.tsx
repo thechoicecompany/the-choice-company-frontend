@@ -1,12 +1,14 @@
 "use client";
-// CHECKOUT PAGE — Razorpay payment integration
-// Flow: Fill address → Click Pay → Razorpay modal opens → On success → verify → redirect
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import Script from "next/script";
 import { useCart } from "@/lib/hooks/useCart";
 import { formatINR } from "@/lib/utils/formatCurrency";
+import { useRecaptcha } from "@/lib/hooks/useRecaptcha";
+
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
 declare global {
     interface Window {
@@ -23,11 +25,19 @@ interface RazorpayOptions {
 }
 interface RazorpayInstance { open(): void; }
 
-const INDIAN_STATES = ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"];
+const INDIAN_STATES = [
+    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+    "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
+    "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur",
+    "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan",
+    "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh",
+    "Uttarakhand", "West Bengal",
+];
 
 export default function CheckoutPage() {
     const router = useRouter();
     const { items, subtotal, discount, total, coupon, clearCart } = useCart();
+    const { getToken } = useRecaptcha();
 
     const gstAmt = Math.round(total * 0.18);
     const grandTotal = total + gstAmt;
@@ -45,17 +55,12 @@ export default function CheckoutPage() {
         setErrors(p => ({ ...p, [k]: "" }));
     };
 
-    // ── Validation ─────────────────────────────────────────────────────────────
-    // Replace your validate() function entirely
     const validate = () => {
         const e: Record<string, string> = {};
         if (!form.name.trim()) e.name = "Full name is required";
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Valid email required";
-
-        // Strip leading 0 before checking — handles both 9876500000 and 09876500000
         const normalizedPhone = form.phone.replace(/^(\+91|91|0)/, "");
         if (!/^[6-9]\d{9}$/.test(normalizedPhone)) e.phone = "Valid 10-digit mobile required (e.g. 9876500000)";
-
         if (!form.line1.trim()) e.line1 = "Address is required";
         if (!form.city.trim()) e.city = "City is required";
         if (!form.state) e.state = "State is required";
@@ -64,7 +69,6 @@ export default function CheckoutPage() {
         return Object.keys(e).length === 0;
     };
 
-    // ── Load Razorpay script ────────────────────────────────────────────────────
     const loadRazorpay = (): Promise<boolean> =>
         new Promise(resolve => {
             if (window.Razorpay) { resolve(true); return; }
@@ -75,7 +79,6 @@ export default function CheckoutPage() {
             document.body.appendChild(script);
         });
 
-    // ── Main Pay Handler ────────────────────────────────────────────────────────
     const handlePay = async () => {
         if (!validate()) return;
         if (items.length === 0) { router.push("/shop"); return; }
@@ -84,40 +87,47 @@ export default function CheckoutPage() {
         setStep("paying");
 
         try {
-            // 1. Load Razorpay SDK
             const sdkLoaded = await loadRazorpay();
             if (!sdkLoaded) throw new Error("Razorpay SDK failed to load");
 
-            // 2. Create Razorpay order on server
-            const receipt = `TCC-DEMO-${Date.now()}`;
+            const recaptchaToken = await getToken("checkout");
+
+            // Number() guards against localStorage deserializing numeric IDs as strings
+            const cartItemsPayload = items.map(i => ({
+                productId: Number(i.id),
+                quantity: Number(i.quantity),
+            }));
+
             const orderRes = await fetch("/api/razorpay/create-order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    amount: grandTotal,
-                    receipt,
-                    notes: { customerName: form.name, customerEmail: form.email },
+                    cartItems: cartItemsPayload,
+                    couponCode: coupon ?? undefined,
+                    recaptchaToken,
                 }),
             });
-            const orderData = await orderRes.json();
-            if (!orderRes.ok || !orderData.success) throw new Error(orderData.error || "Order creation failed");
 
-            // 3. Open Razorpay payment modal
+            const orderData = await orderRes.json();
+
+            if (!orderRes.ok || !orderData.orderId) {
+                throw new Error(orderData.error || "Order creation failed");
+            }
+
             const razorpay = new window.Razorpay({
-                key: orderData.keyId,
+                key: orderData.key,
                 amount: orderData.amount,
                 currency: "INR",
                 name: "The Choice Company",
                 description: `Sample Purchase — ${items.length} item${items.length > 1 ? "s" : ""}`,
                 order_id: orderData.orderId,
-                image: "/logo.svg",
+                image: "/logo.png",
                 prefill: { name: form.name, email: form.email, contact: `+91${form.phone}` },
                 theme: { color: "#C89B3C" },
 
                 handler: async (response) => {
                     setStep("verifying");
                     try {
-                        // 4. Verify payment on server
                         const verifyRes = await fetch("/api/razorpay/verify-payment", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -127,29 +137,42 @@ export default function CheckoutPage() {
                                 razorpay_signature: response.razorpay_signature,
                                 orderData: {
                                     items: items.map(i => ({
-                                        productId: i.id,
+                                        productId: Number(i.id),
                                         name: i.name,
                                         image: i.image,
                                         samplePrice: i.samplePrice,
-                                        quantity: i.quantity,
+                                        quantity: Number(i.quantity),
                                         subtotal: i.samplePrice * i.quantity,
                                     })),
                                     customer: {
-                                        name: form.name, email: form.email, phone: form.phone,
-                                        address: { line1: form.line1, line2: form.line2, city: form.city, state: form.state, pincode: form.pincode, country: "India" },
+                                        name: form.name,
+                                        email: form.email,
+                                        phone: form.phone,
+                                        address: {
+                                            line1: form.line1,
+                                            line2: form.line2,
+                                            city: form.city,
+                                            state: form.state,
+                                            pincode: form.pincode,
+                                            country: "India",
+                                        },
                                     },
-                                    subtotal, discount, total: grandTotal, coupon: coupon ?? undefined,
+                                    subtotal,
+                                    discount,
+                                    total: grandTotal,
+                                    coupon: coupon ?? undefined,
                                 },
                             }),
                         });
+
                         const verifyData = await verifyRes.json();
                         if (!verifyData.success) throw new Error(verifyData.error);
 
-                        // 5. Success — clear cart and redirect
                         clearCart();
                         router.push(`/order-success?orderId=${verifyData.demoOrderId}&paymentId=${response.razorpay_payment_id}`);
+
                     } catch (err) {
-                        console.error("Payment verification failed:", err);
+                        console.error("[checkout] Payment verification failed:", err);
                         alert("Payment verification failed. Please contact support with your payment ID: " + response.razorpay_payment_id);
                         setLoading(false);
                         setStep("address");
@@ -167,8 +190,8 @@ export default function CheckoutPage() {
             razorpay.open();
 
         } catch (err) {
-            console.error("Checkout error:", err);
-            alert("Something went wrong. Please try again.");
+            console.error("[checkout] Checkout error:", err);
+            alert(err instanceof Error ? err.message : "Something went wrong. Please try again.");
             setLoading(false);
             setStep("address");
         }
@@ -186,13 +209,15 @@ export default function CheckoutPage() {
 
     return (
         <div className="section-py" style={{ background: "var(--cream)" }}>
+            {RECAPTCHA_SITE_KEY && (
+                <Script src={`https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`} />
+            )}
             <div className="container-site max-w-5xl mx-auto">
                 <div className="mb-8">
                     <h1 className="font-playfair text-3xl font-bold text-navy">Checkout</h1>
                     <p className="text-gray-500 text-sm mt-1">Sample purchase — secure payment via Razorpay</p>
                 </div>
 
-                {/* Payment status overlay */}
                 {step === "verifying" && (
                     <div className="fixed inset-0 z-[600] bg-white/90 flex flex-col items-center justify-center">
                         <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin mb-4" />
@@ -296,7 +321,6 @@ export default function CheckoutPage() {
                         <div className="card p-6 sticky top-24">
                             <h3 className="font-bold text-navy mb-4">Order Summary</h3>
 
-                            {/* Items */}
                             <div className="space-y-3 mb-5 max-h-48 overflow-y-auto">
                                 {items.map(item => (
                                     <div key={item.id} className="flex gap-3 items-center">
@@ -314,7 +338,6 @@ export default function CheckoutPage() {
                                 ))}
                             </div>
 
-                            {/* Price breakdown */}
                             <div className="border-t border-gray-100 pt-4 space-y-2.5 text-sm">
                                 <div className="flex justify-between text-gray-500">
                                     <span>Subtotal</span><span>{formatINR(subtotal)}</span>
@@ -336,7 +359,6 @@ export default function CheckoutPage() {
                                 </div>
                             </div>
 
-                            {/* Pay button */}
                             <button onClick={handlePay} disabled={loading}
                                 className="w-full mt-6 py-4 rounded-xl font-semibold text-base text-white transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                                 style={{ background: loading ? "#888" : "var(--gold)" }}>

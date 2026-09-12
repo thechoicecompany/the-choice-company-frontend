@@ -106,8 +106,12 @@ export interface AdminProduct {
   id: number;
   name: string;
   slug: string;
+  /** Primary category — mirrors categories[0] */
   category: string;
   categorySlug: string;
+  /** All categories this product belongs to */
+  categories: string[];
+  categorySlugs: string[];
   description: string;
   fullDescription?: string;
   image: string;
@@ -134,8 +138,12 @@ export interface AdminProduct {
 export interface CreateProductPayload {
   name: string;
   slug?: string;
+  /** Primary category — first entry of categories, sent for backward-compat */
   category: string;
   categorySlug: string;
+  /** All categories this product belongs to — required, at least one */
+  categories: string[];
+  categorySlugs: string[];
   description: string;
   fullDescription?: string;
   /** Primary image URL — required by backend @NotBlank */

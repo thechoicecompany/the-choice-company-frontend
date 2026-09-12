@@ -4,6 +4,7 @@ import Script from "next/script";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { InquirySchema, type InquiryFormData } from "@/lib/validations/inquiry.schema";
+import { useRecaptcha } from "@/lib/hooks/useRecaptcha";
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
@@ -24,6 +25,7 @@ export default function CatalogRequestForm() {
     const [submitting, setSubmitting] = useState(false);
     const [success, setSuccess] = useState<string | null>(null);
     const [serverError, setServerError] = useState<string | null>(null);
+    const { getToken } = useRecaptcha();
 
     const {
         register,
@@ -38,27 +40,19 @@ export default function CatalogRequestForm() {
         },
     });
 
-    async function getRecaptchaToken(): Promise<string> {
-        if (!RECAPTCHA_SITE_KEY) return "";
-        return new Promise((resolve, reject) => {
-            // @ts-expect-error - grecaptcha injected by <Script> below
-            window.grecaptcha.ready(() => {
-                // @ts-expect-error - grecaptcha injected by <Script> below
-                window.grecaptcha
-                    .execute(RECAPTCHA_SITE_KEY, { action: "catalog_request" })
-                    .then(resolve)
-                    .catch(reject);
-            });
-        });
-    }
-
     async function onSubmit(data: InquiryFormData) {
         setSubmitting(true);
         setServerError(null);
         setSuccess(null);
 
         try {
-            const recaptchaToken = await getRecaptchaToken();
+            // Guarded: getToken() rejects cleanly with "reCAPTCHA not loaded"
+            // instead of throwing a raw TypeError if the user submits before
+            // the <Script> below has finished loading window.grecaptcha.
+            // Skipped entirely when no site key is configured (e.g. local dev).
+            const recaptchaToken = RECAPTCHA_SITE_KEY
+                ? await getToken("catalog_request")
+                : "";
 
             const payload: Record<string, unknown> = {
                 ...data,
@@ -86,7 +80,7 @@ export default function CatalogRequestForm() {
             setSuccess(
                 `Thanks! Your request (ref: ${json.refNumber}) has been received. We'll send the full catalogue and get back to you shortly.`
             );
-            reset({ productCategory: CATALOG_REQUEST_CATEGORY });
+            reset({ productCategory: CATALOG_REQUEST_CATEGORY, brandingRequired: false });
         } catch (err: unknown) {
             setServerError(err instanceof Error ? err.message : "Something went wrong.");
         } finally {
@@ -100,10 +94,13 @@ export default function CatalogRequestForm() {
                 <Script src={`https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`} />
             )}
 
-            {/* Fixed category — sent automatically, not user-editable */}
-            <input type="hidden" {...register("productCategory")} value={CATALOG_REQUEST_CATEGORY} />
-
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+                {/* Fixed category — sent automatically, not user-editable.
+                    Moved inside <form> so it's part of the actual form tree
+                    (correct HTML semantics; also keeps it associated with the
+                    form if native submission is ever triggered as a fallback). */}
+                <input type="hidden" {...register("productCategory")} value={CATALOG_REQUEST_CATEGORY} />
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Field label="Your Name *" error={errors.contactPerson?.message}>
                         <input {...register("contactPerson")} className="input" />

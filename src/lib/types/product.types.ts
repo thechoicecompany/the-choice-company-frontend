@@ -21,8 +21,12 @@ export interface Product {
   id: number;
   name: string;
   slug: string;
+  /** Primary category — mirrors categories[0], kept for backward compat */
   category: string;
   categorySlug: string;
+  /** All categories this product belongs to */
+  categories: string[];
+  categorySlugs: string[];
   description: string;
   fullDescription?: string;
   // Primary image (backward compat)
@@ -52,7 +56,6 @@ export interface ProductFilters {
   sort?: string;
   page?: number;
 }
-
 
 export interface PaginatedResponse<T> {
   data: T[];

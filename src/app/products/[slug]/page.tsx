@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import PageHero from "@/components/layout/PageHero";
 import ProductGallery from "@/components/sections/products/ProductGallery";
 import PricingTiers from "@/components/sections/products/PricingTiers";
-import QuickInquiryForm from "@/components/sections/products/QuickInquiryForm";
+import QuickInquiryForm from "@/components/forms/QuickInquiryForm";
 import RelatedProducts from "@/components/sections/products/RelatedProducts";
 import SchemaMarkup from "@/components/ui/SchemaMarkup";
 import { fetchProductBySlug, fetchAllProductSlugs } from "@/lib/api/products";

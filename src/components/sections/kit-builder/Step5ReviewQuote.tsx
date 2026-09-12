@@ -1,35 +1,40 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Script from "next/script";
+import { useRecaptcha } from "@/lib/hooks/useRecaptcha";
 import type { KitBuilderHook } from "@/lib/hooks/useKitBuilder";
 
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
 const ALL_PRODUCTS = [
-  { id:1,  name:"Steel Thermos",    icon:"🥤", price:280 },
-  { id:2,  name:"Copper Bottle",    icon:"🍶", price:320 },
-  { id:3,  name:"Coffee Mug",       icon:"☕", price:180 },
-  { id:4,  name:"Laptop Bag",       icon:"💼", price:680 },
-  { id:5,  name:"Backpack",         icon:"🎒", price:750 },
-  { id:6,  name:"Tote Bag",         icon:"👜", price:220 },
-  { id:7,  name:"Notepad",          icon:"📓", price:120 },
-  { id:8,  name:"Pen Set",          icon:"🖊",  price:95  },
-  { id:9,  name:"Desk Organiser",   icon:"🗂",  price:340 },
-  { id:10, name:"Wireless Mouse",   icon:"🖱",  price:420 },
-  { id:11, name:"T-Shirt",          icon:"👕", price:280 },
-  { id:12, name:"Cap",              icon:"🧢", price:180 },
-  { id:13, name:"Dry Fruit Hamper", icon:"🫙", price:450 },
-  { id:14, name:"Scented Candle",   icon:"🕯",  price:260 },
-  { id:15, name:"Bamboo Pen",       icon:"✏",  price:65  },
-  { id:16, name:"Wireless Earbuds", icon:"🎧", price:890 },
+  { id: 1, name: "Steel Thermos", icon: "🥤", price: 280 },
+  { id: 2, name: "Copper Bottle", icon: "🍶", price: 320 },
+  { id: 3, name: "Coffee Mug", icon: "☕", price: 180 },
+  { id: 4, name: "Laptop Bag", icon: "💼", price: 680 },
+  { id: 5, name: "Backpack", icon: "🎒", price: 750 },
+  { id: 6, name: "Tote Bag", icon: "👜", price: 220 },
+  { id: 7, name: "Notepad", icon: "📓", price: 120 },
+  { id: 8, name: "Pen Set", icon: "🖊", price: 95 },
+  { id: 9, name: "Desk Organiser", icon: "🗂", price: 340 },
+  { id: 10, name: "Wireless Mouse", icon: "🖱", price: 420 },
+  { id: 11, name: "T-Shirt", icon: "👕", price: 280 },
+  { id: 12, name: "Cap", icon: "🧢", price: 180 },
+  { id: 13, name: "Dry Fruit Hamper", icon: "🫙", price: 450 },
+  { id: 14, name: "Scented Candle", icon: "🕯", price: 260 },
+  { id: 15, name: "Bamboo Pen", icon: "✏", price: 65 },
+  { id: 16, name: "Wireless Earbuds", icon: "🎧", price: 890 },
 ];
 
 export default function Step5ReviewQuote({ kit }: { kit: KitBuilderHook }) {
-  const router  = useRouter();
-  const [status, setStatus] = useState<"idle"|"submitting"|"success"|"error">("idle");
-  const [contact, setContact] = useState({ companyName:"", contactPerson:"", mobile:"", email:"", city:"", state:"" });
+  const router = useRouter();
+  const { getToken } = useRecaptcha();
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [contact, setContact] = useState({ companyName: "", contactPerson: "", mobile: "", email: "", city: "", state: "" });
 
   const selected = ALL_PRODUCTS.filter(p => kit.selectedProducts.has(p.id));
-  const perKit   = selected.reduce((s, p) => s + p.price, 0);
-  const total    = perKit * kit.quantity;
+  const perKit = selected.reduce((s, p) => s + p.price, 0);
+  const total = perKit * kit.quantity;
 
   const setC = (k: string, v: string) => setContact(p => ({ ...p, [k]: v }));
 
@@ -37,7 +42,13 @@ export default function Step5ReviewQuote({ kit }: { kit: KitBuilderHook }) {
     e.preventDefault();
     setStatus("submitting");
     try {
-      const res  = await fetch("/api/inquiry", {
+      // Guarded: getToken rejects with a clear "reCAPTCHA not loaded" error
+      // instead of throwing if the script hasn't finished loading yet.
+      const recaptchaToken = RECAPTCHA_SITE_KEY
+        ? await getToken("kit_builder_quote")
+        : "";
+
+      const res = await fetch("/api/inquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -50,6 +61,7 @@ export default function Step5ReviewQuote({ kit }: { kit: KitBuilderHook }) {
           brandingRequired: !!kit.logoUrl,
           additionalNotes: `Occasion: ${kit.occasion}. Branding: ${kit.brandingStyle}. AI Kit Builder submission.${kit.aiRecommendation ? ` AI Recommendation: ${kit.aiRecommendation.substring(0, 200)}` : ""}`,
           logoUrl: kit.logoUrl || undefined,
+          recaptchaToken,
         }),
       });
       const data = await res.json();
@@ -65,6 +77,10 @@ export default function Step5ReviewQuote({ kit }: { kit: KitBuilderHook }) {
 
   return (
     <div className="space-y-5">
+      {RECAPTCHA_SITE_KEY && (
+        <Script src={`https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`} />
+      )}
+
       {/* Kit Summary */}
       <div className="card p-6">
         <h3 className="font-bold text-navy mb-4 flex items-center gap-2">

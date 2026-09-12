@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { springApi } from "@/lib/api/client";
 import CatalogPreviewGrid from "@/components/catalog/CatalogPreviewGrid";
-import CatalogRequestForm from "@/components/catalog/CatalogRequestForm";
+import CatalogRequestForm from "@/components/forms/CatalogRequestForm";
 
 export const metadata: Metadata = {
     title: "Our Catalogue",

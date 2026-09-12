@@ -22,7 +22,8 @@ export interface CartItem {
   samplePrice: number;   // per-unit price for demo purchase (higher than bulk)
   quantity: number;   // qty in cart (1 to maxSampleQty)
   maxSampleQty: number;   // max demo units allowed (e.g. 5)
-  moq: number;   // bulk MOQ (shown as upsell)
+  moq: number;
+  bulkPrice: number;   // bulk MOQ (shown as upsell)
 }
 
 interface CartState {

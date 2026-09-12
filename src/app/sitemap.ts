@@ -1,22 +1,48 @@
-import type { MetadataRoute } from "next";
-import { fetchAllProductSlugs } from "@/lib/api/products";
-import { fetchAllBlogSlugs }   from "@/lib/api/blog";
-import { INDUSTRIES }           from "@/lib/constants/industries";
-const BASE = "https://thechoicecompany.in";
+import { MetadataRoute } from "next";
+
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://thechoicecompany.in";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [productSlugs,blogSlugs] = await Promise.all([fetchAllProductSlugs().catch(()=>[]),fetchAllBlogSlugs().catch(()=>[])]);
-  return [
-    {url:BASE,lastModified:new Date(),changeFrequency:"weekly",priority:1.0},
-    {url:`${BASE}/about`,lastModified:new Date(),changeFrequency:"monthly",priority:0.7},
-    {url:`${BASE}/products`,lastModified:new Date(),changeFrequency:"daily",priority:0.9},
-    {url:`${BASE}/bulk-orders`,lastModified:new Date(),changeFrequency:"weekly",priority:0.9},
-    {url:`${BASE}/build-your-kit`,lastModified:new Date(),changeFrequency:"monthly",priority:0.8},
-    {url:`${BASE}/industries`,lastModified:new Date(),changeFrequency:"monthly",priority:0.7},
-    {url:`${BASE}/gallery`,lastModified:new Date(),changeFrequency:"weekly",priority:0.6},
-    {url:`${BASE}/blog`,lastModified:new Date(),changeFrequency:"daily",priority:0.8},
-    {url:`${BASE}/contact`,lastModified:new Date(),changeFrequency:"monthly",priority:0.7},
-    ...INDUSTRIES.map(i=>({url:`${BASE}/industries/${i.slug}`,lastModified:new Date(),changeFrequency:"monthly" as const,priority:0.8})),
-    ...productSlugs.map(s=>({url:`${BASE}/products/${s}`,lastModified:new Date(),changeFrequency:"weekly" as const,priority:0.85})),
-    ...blogSlugs.map(s=>({url:`${BASE}/blog/${s}`,lastModified:new Date(),changeFrequency:"monthly" as const,priority:0.6})),
+  const productSlugs = await fetchProductSlugs();
+
+  const staticRoutes: MetadataRoute.Sitemap = [
+    { url: BASE_URL, lastModified: new Date(), priority: 1.0 },
+    { url: `${BASE_URL}/shop`, lastModified: new Date(), priority: 0.9 },
+    { url: `${BASE_URL}/catalog`, lastModified: new Date(), priority: 0.8 },
+    { url: `${BASE_URL}/gallery`, lastModified: new Date(), priority: 0.7 },
+    { url: `${BASE_URL}/about`, lastModified: new Date(), priority: 0.6 },
+    { url: `${BASE_URL}/contact`, lastModified: new Date(), priority: 0.6 },
   ];
+
+  const productRoutes: MetadataRoute.Sitemap = productSlugs.map((slug) => ({
+    url: `${BASE_URL}/shop/${slug}`,
+    lastModified: new Date(),
+    priority: 0.8,
+  }));
+
+  return [...staticRoutes, ...productRoutes];
+}
+
+// Backend responses on this API are inconsistently shaped — some routes
+// return a bare array, others wrap it in ApiResponse<T> as { data: [...] }.
+// Handle both, and never let anything but a real string[] reach sitemap()'s
+// .map() call (a bad/unreachable response must not fail the whole build).
+async function fetchProductSlugs(): Promise<string[]> {
+  const API = process.env.NEXT_PUBLIC_API_URL;
+  if (!API) return [];
+
+  try {
+    const res = await fetch(`${API}/api/products/slugs`);
+    if (!res.ok) return [];
+
+    const json = await res.json();
+
+    if (Array.isArray(json)) return json;
+    if (json && Array.isArray(json.data)) return json.data;
+
+    return [];
+  } catch {
+    return [];
+  }
 }

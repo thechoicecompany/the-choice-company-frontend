@@ -104,7 +104,7 @@ export default function CartPage() {
                                     <div className="mt-3 px-3 py-2 rounded-lg bg-teal/5 border border-teal/20 flex items-center gap-2">
                                         <span className="text-xs text-teal">📦</span>
                                         <span className="text-xs text-teal">
-                                            Bulk price: <strong>{formatINR(item.moq * 0)}</strong> — order {item.moq}+ units for best rates
+                                            Bulk price: <strong>{formatINR(item.moq * item.bulkPrice)}</strong> — order {item.moq}+ units for best rates
                                         </span>
                                         <Link href="/bulk-orders#inquiry-form" className="text-xs text-teal font-semibold ml-auto hover:underline">
                                             Get Quote →

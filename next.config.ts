@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
+// const nextConfig: NextConfig = {
+//   experimental: { turbo: {} },
 const nextConfig: NextConfig = {
-  experimental: { turbo: {} },
+  turbopack: {},
+  transpilePackages: ["gsap"],
 
   images: {
     remotePatterns: [
@@ -87,6 +90,11 @@ const nextConfig: NextConfig = {
             "https://www.gstatic.com",
             "https://checkout.razorpay.com",
             "https://api.razorpay.com",
+            // Risk-detection bundle loaded by checkout.razorpay.com at
+            // payment time — without this, Razorpay's fraud/risk signals
+            // are blocked (console CSP violation, no visible checkout
+            // breakage, but you lose that signal on every transaction).
+            "https://cdn.razorpay.com",
           ].join(" "),
 
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
@@ -108,6 +116,9 @@ const nextConfig: NextConfig = {
             "https://checkout.razorpay.com",
             "https://lumberjack.razorpay.com",
             "https://lumberjack-cx.razorpay.com",
+            // The risk-detection bundle itself makes calls back out —
+            // same host as the script, so it needs a connect-src entry too.
+            "https://cdn.razorpay.com",
           ].join(" "),
 
           [

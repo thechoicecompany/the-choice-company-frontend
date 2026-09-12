@@ -82,20 +82,7 @@ export default function HeroBannerClient({ initialBanners }: Props) {
             {/* Controls — only when more than 1 slide */}
             {slides.length > 1 && (
                 <>
-                    <button
-                        onClick={goPrev}
-                        aria-label="Previous poster"
-                        className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm shadow flex items-center justify-center hover:bg-white transition"
-                    >
-                        <Arrow direction="left" />
-                    </button>
-                    <button
-                        onClick={goNext}
-                        aria-label="Next poster"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm shadow flex items-center justify-center hover:bg-white transition"
-                    >
-                        <Arrow direction="right" />
-                    </button>
+
 
                     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
                         {slides.map((_, i) => (

@@ -1,0 +1,333 @@
+/*
+ * animations.css
+ * Global animation utilities for The Choice Company
+ * All transforms use GPU-composited properties only (transform, opacity)
+ * Import this in globals.css: @import './animations.css';
+ */
+
+/* ── Keyframes ────────────────────────────────────────────────────────────── */
+
+@keyframes tcc-fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(32px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes tcc-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes tcc-slide-right {
+    from {
+        opacity: 0;
+        transform: translateX(-32px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes tcc-slide-left {
+    from {
+        opacity: 0;
+        transform: translateX(32px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes tcc-scale-up {
+    from {
+        opacity: 0;
+        transform: scale(0.88);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes tcc-shimmer {
+    0% {
+        background-position: -200% center;
+    }
+
+    100% {
+        background-position: 200% center;
+    }
+}
+
+@keyframes tcc-float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+@keyframes tcc-pulse-gold {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(200, 155, 60, 0);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(200, 155, 60, 0.15);
+    }
+}
+
+@keyframes tcc-spin-slow {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes tcc-bounce-in {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) translateY(20px);
+    }
+
+    70% {
+        transform: scale(1.05) translateY(-4px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes tcc-draw-line {
+    from {
+        transform: scaleX(0);
+        transform-origin: left center;
+    }
+
+    to {
+        transform: scaleX(1);
+        transform-origin: left center;
+    }
+}
+
+/* ── Utility classes ─────────────────────────────────────────────────────── */
+
+/* Page-load animations — use on critical above-the-fold elements */
+.anim-fade-up {
+    animation: tcc-fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.anim-fade-in {
+    animation: tcc-fade-in 0.6s ease both;
+}
+
+.anim-slide-right {
+    animation: tcc-slide-right 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.anim-slide-left {
+    animation: tcc-slide-left 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.anim-scale-up {
+    animation: tcc-scale-up 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.anim-bounce-in {
+    animation: tcc-bounce-in 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Delay helpers */
+.anim-delay-100 {
+    animation-delay: 0.1s;
+}
+
+.anim-delay-200 {
+    animation-delay: 0.2s;
+}
+
+.anim-delay-300 {
+    animation-delay: 0.3s;
+}
+
+.anim-delay-400 {
+    animation-delay: 0.4s;
+}
+
+.anim-delay-500 {
+    animation-delay: 0.5s;
+}
+
+.anim-delay-600 {
+    animation-delay: 0.6s;
+}
+
+.anim-delay-700 {
+    animation-delay: 0.7s;
+}
+
+.anim-delay-800 {
+    animation-delay: 0.8s;
+}
+
+/* Continuous animations */
+.anim-float {
+    animation: tcc-float 3s ease-in-out infinite;
+}
+
+.anim-float-slow {
+    animation: tcc-float 5s ease-in-out infinite;
+}
+
+.anim-pulse-gold {
+    animation: tcc-pulse-gold 2s ease-in-out infinite;
+}
+
+.anim-spin-slow {
+    animation: tcc-spin-slow 8s linear infinite;
+}
+
+/* ── Gold shimmer text ────────────────────────────────────────────────────── */
+.text-shimmer-gold {
+    background: linear-gradient(90deg,
+            #C89B3C 0%,
+            #F0CC7A 25%,
+            #C89B3C 50%,
+            #8B6A1F 75%,
+            #C89B3C 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: tcc-shimmer 3s linear infinite;
+}
+
+/* ── Hover lift — lightweight CSS alternative to GSAP for simple cards ───── */
+.hover-lift {
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* ── Underline draw — for nav links and section headings ─────────────────── */
+.underline-draw {
+    position: relative;
+}
+
+.underline-draw::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.underline-draw:hover::after,
+.underline-draw.active::after {
+    transform: scaleX(1);
+}
+
+/* ── Gold rule animated draw ─────────────────────────────────────────────── */
+.gold-rule-animated {
+    display: block;
+    height: 2px;
+    width: 0;
+    background: var(--gold);
+    animation: tcc-draw-line 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+    animation-fill-mode: forwards;
+}
+
+/* ── Gradient border card ────────────────────────────────────────────────── */
+.gradient-border {
+    position: relative;
+    background: white;
+    border-radius: 1rem;
+}
+
+.gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(200, 155, 60, 0.4), transparent 50%, rgba(26, 92, 74, 0.3));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.gradient-border:hover::before {
+    opacity: 1;
+}
+
+/* ── Animated dot loader (reuse existing .animate-bounce-dot) ─────────────── */
+.anim-dot {
+    animation: tcc-float 1s 0.00s ease-in-out infinite alternate;
+}
+
+.anim-dot-2 {
+    animation: tcc-float 1s 0.15s ease-in-out infinite alternate;
+}
+
+.anim-dot-3 {
+    animation: tcc-float 1s 0.30s ease-in-out infinite alternate;
+}
+
+/* ── Respect reduced motion ─────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .anim-float,
+    .anim-float-slow,
+    .anim-pulse-gold,
+    .anim-spin-slow {
+        animation: none !important;
+    }
+}

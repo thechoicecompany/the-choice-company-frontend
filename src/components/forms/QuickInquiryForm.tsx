@@ -1,6 +1,10 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Script from "next/script";
+import { useRecaptcha } from "@/lib/hooks/useRecaptcha";
+
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
 interface Props {
   productName: string;
@@ -11,13 +15,14 @@ interface Props {
 
 export default function QuickInquiryForm({ productName, productId, onClose, isModal }: Props) {
   const router = useRouter();
-  const [status, setStatus] = useState<"idle"|"submitting"|"success"|"error">("idle");
+  const { getToken } = useRecaptcha();
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [form, setForm] = useState({
     companyName: "", contactPerson: "", mobile: "", email: "",
     quantityRequired: 100, additionalNotes: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: name === "quantityRequired" ? Number(value) : value }));
   };
@@ -26,6 +31,12 @@ export default function QuickInquiryForm({ productName, productId, onClose, isMo
     e.preventDefault();
     setStatus("submitting");
     try {
+      // Guarded: getToken rejects with a clear "reCAPTCHA not loaded" error
+      // instead of throwing if the script hasn't finished loading yet.
+      const recaptchaToken = RECAPTCHA_SITE_KEY
+        ? await getToken("quick_inquiry")
+        : "";
+
       const res = await fetch("/api/inquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -36,6 +47,7 @@ export default function QuickInquiryForm({ productName, productId, onClose, isMo
           deliveryLocation: "To be confirmed",
           city: "N/A", state: "N/A",
           designation: "",
+          recaptchaToken,
         }),
       });
       const data = await res.json();
@@ -52,6 +64,9 @@ export default function QuickInquiryForm({ productName, productId, onClose, isMo
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {RECAPTCHA_SITE_KEY && (
+        <Script src={`https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`} />
+      )}
       {/* Product Badge */}
       <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gold/10 border border-gold/20">
         <span className="text-lg">🎁</span>

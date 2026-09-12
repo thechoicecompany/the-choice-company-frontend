@@ -1,12 +1,3 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// lib/api/admin/heroBanners.ts
-//
-// Hero Banner API calls
-//   - Admin routes go through adminFetch() → /api/proxy → Spring Boot
-//   - Auth is handled by the httpOnly cookie
-//   - Public route (/api/hero-banners) is fetched directly from Spring Boot
-// ─────────────────────────────────────────────────────────────────────────────
-
 import { adminFetch } from "@/lib/api/admin";
 import type { ApiResponse } from "@/lib/types/admin.types";
 import type {
@@ -20,10 +11,14 @@ import type {
 
 export async function getActiveBanners(): Promise<HeroBanner[]> {
     const API = process.env.NEXT_PUBLIC_API_URL;
+    if (!API) return [];
 
     try {
         const res = await fetch(`${API}/api/hero-banners`, {
-            next: { revalidate: 60 },
+            next: {
+                revalidate: 300, // fallback ceiling — normally busted instantly via the tag
+                tags: ["hero-banners"],
+            },
         });
 
         if (!res.ok) {
@@ -72,6 +67,9 @@ export async function getBannerById(id: number): Promise<HeroBanner> {
 
 /**
  * POST /api/admin/hero-banners
+ *
+ * The proxy route revalidates the "hero-banners" tag on a successful
+ * response, so the public homepage picks this up on its very next request.
  */
 export async function createBanner(
     payload: CreateHeroBannerPayload
@@ -107,6 +105,10 @@ export async function updateBanner(
 
 /**
  * DELETE /api/admin/hero-banners/{id}
+ *
+ * Backend returns 204 No Content. The proxy route now returns that as a
+ * null-body response (instead of crashing) and revalidates "hero-banners"
+ * before returning, so a deleted banner's image never gets served stale.
  */
 export async function deleteBanner(id: number): Promise<void> {
     await adminFetch(
@@ -208,4 +210,3 @@ export async function uploadBannerImage(
         json
     ) as ImageUploadResult;
 }
-

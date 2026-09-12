@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+const SESSION_KEY = "exit_popup_shown";
 
 const TEAL_DARK = "#0c2622";
 const TEAL = "#173f3b";
@@ -219,6 +220,11 @@ function BrandGiftBox({ stage }: { stage: "hidden" | "dropped" | "charging" | "b
 
 type Stage = "hidden" | "dropped" | "charging" | "blasted";
 
+// Delay (ms) before the exit-intent listener arms. Prevents a stray
+// cursor movement toward the browser chrome right after page load from
+// triggering the popup before the user has actually engaged with the page.
+const ARM_DELAY_MS = 2000;
+
 export default function ExitIntentPopup() {
   const router = useRouter();
   const [visible, setVisible] = useState(false);
@@ -227,9 +233,34 @@ export default function ExitIntentPopup() {
   const [contentVisible, setContentVisible] = useState(false);
   const [shake, setShake] = useState(false);
 
+  // ✅ Real exit-intent detection: fire when the mouse leaves toward the
+  // top of the viewport (heading for the tab bar / address bar / close
+  // button), not on a blind timer. Suppressed for the rest of the
+  // session once shown, via sessionStorage.
   useEffect(() => {
-    const timer = window.setTimeout(() => setVisible(true), 5000);
-    return () => window.clearTimeout(timer);
+    // Already shown this session — don't attach a listener at all.
+    if (typeof window === "undefined") return;
+    if (sessionStorage.getItem(SESSION_KEY)) return;
+
+    let armed = false;
+    const armTimer = window.setTimeout(() => {
+      armed = true;
+    }, ARM_DELAY_MS);
+
+    const handleMouseLeave = (e: MouseEvent) => {
+      if (!armed) return;
+      if (e.clientY <= 0) {
+        setVisible(true);
+        sessionStorage.setItem(SESSION_KEY, "1");
+        document.removeEventListener("mouseleave", handleMouseLeave);
+      }
+    };
+
+    document.addEventListener("mouseleave", handleMouseLeave);
+    return () => {
+      window.clearTimeout(armTimer);
+      document.removeEventListener("mouseleave", handleMouseLeave);
+    };
   }, []);
 
   useEffect(() => {
@@ -369,14 +400,6 @@ export default function ExitIntentPopup() {
                   </p>
 
                   <div className="mt-4 flex flex-col items-center gap-2">
-                    {/* <button
-                      type="button"
-                      className="rounded-xl px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(201,154,61,.25)] transition hover:-translate-y-0.5"
-                      style={{ background: GOLD }}
-                      onClick={() => console.log("Get Free Catalog")}
-                    >
-                      Get Free Catalog <span className="ml-1">→</span>
-                    </button> */}
                     <button
                       type="button"
                       className="rounded-xl px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_28px_rgba(201,154,61,.25)] transition hover:-translate-y-0.5"

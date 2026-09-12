@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import PageHero from "@/components/layout/PageHero";
-import ContactForm from "@/components/sections/about/ContactForm";
+import ContactForm from "@/components/forms/ContactForm";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {

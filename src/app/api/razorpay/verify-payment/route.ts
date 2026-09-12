@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        // ── 1. Verify Razorpay signature ────────────────────────────────────
         const expectedSignature = crypto
             .createHmac("sha256", KEY_SECRET)
             .update(`${razorpay_order_id}|${razorpay_payment_id}`)
@@ -57,7 +58,46 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const { customer, items, subtotal, discount, total, coupon } = orderData;
+        // ── 2. Recompute price server-side — never trust client totals ──────
+        const { customer, items, coupon } = orderData;
+
+        const priceRes = await fetch(
+            `${BACKEND_URL}/api/cart/compute-price`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    cartItems: items.map((i: any) => ({
+                        productId: Number(i.productId),
+                        quantity: Number(i.quantity),
+                    })),
+                    couponCode: coupon ?? null,
+                }),
+            }
+        );
+
+        let subtotal = orderData.subtotal;
+        let discount = orderData.discount;
+        let total = orderData.total;
+
+        if (priceRes.ok) {
+            const priceJson = await priceRes.json();
+            // ✅ Unwrap ApiResponse<T> wrapper — payload is under .data
+            const recomputed = priceJson.data ?? priceJson;
+            subtotal = recomputed.subtotal;
+            discount = recomputed.discount;
+            total = recomputed.total;
+            console.log("[verify-payment] recomputed price:", { subtotal, discount, total });
+        } else {
+            // Recompute failed — payment already verified by signature, log and continue
+            // with client values as fallback. Manual reconciliation possible via logs.
+            console.error("[verify-payment] Price recompute failed at verify step — using client values", {
+                razorpay_payment_id,
+                clientTotal: orderData.total,
+            });
+        }
+
+        // ── 3. Save order to backend ────────────────────────────────────────
         const gstAmount = Math.round(total * 18 / 118);
         const generatedOrderId = generateOrderId();
 
@@ -69,12 +109,12 @@ export async function POST(req: NextRequest) {
             customerEmail: customer.email,
             customerPhone: customer.phone,
             shippingAddress: customer.address,
-            items: items,
-            subtotal: subtotal,
+            items,
+            subtotal,
             discount: discount || 0,
             couponCode: coupon || null,
-            gstAmount: gstAmount,
-            total: total,
+            gstAmount,
+            total,
         };
 
         const backendRes = await fetch(`${BACKEND_URL}/api/demo-orders`, {
@@ -91,18 +131,14 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: true, demoOrderId: existingOrderId });
         }
 
-        // NEW: distinguish rate-limiting from genuine DB/save failures in logs
         if (backendRes.status === 429) {
             const retryAfter = backendRes.headers.get("Retry-After");
-            console.warn("[verify-payment] Rate limited on demo-orders save — payment verified, retry recommended:", {
+            console.warn("[verify-payment] Rate limited on demo-orders save:", {
                 razorpay_payment_id,
                 generatedOrderId,
                 customerEmail: customer.email,
                 retryAfter,
             });
-            // Still success:true — money is taken, never strand the user.
-            // "RATE_LIMITED-" prefix instead of "UNRECONCILED-" makes this
-            // instantly distinguishable during manual reconciliation.
             return NextResponse.json({
                 success: true,
                 demoOrderId: `RATE_LIMITED-${razorpay_payment_id}`,

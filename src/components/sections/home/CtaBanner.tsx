@@ -1,35 +1,69 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+
+import { useRef } from "react";
 import Link from "next/link";
-import { FileText, CalendarClock, Gift } from "lucide-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+import MagneticButton from "@/components/ui/MagneticButton";
+
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={className} fill="currentColor">
-      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.28-1.38a9.9 9.9 0 0 0 4.76 1.21h.01c5.46 0 9.9-4.45 9.9-9.92C21.96 6.45 17.5 2 12.04 2Zm0 18.15h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.13.82.84-3.05-.2-.31a8.22 8.22 0 0 1-1.26-4.37c0-4.54 3.7-8.24 8.26-8.24 2.2 0 4.28.86 5.83 2.42a8.18 8.18 0 0 1 2.42 5.83c0 4.55-3.7 8.24-8.26 8.24Zm4.52-6.17c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.17.24-.64.8-.78.97-.14.16-.29.18-.54.06-.25-.12-1.04-.38-1.99-1.22-.73-.66-1.23-1.46-1.37-1.71-.14-.24-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.24-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.42-.14-.01-.31-.01-.47-.01-.17 0-.43.06-.66.31-.23.24-.86.84-.86 2.05s.88 2.38 1 2.54c.12.17 1.73 2.64 4.19 3.71.59.25 1.04.4 1.4.51.59.19 1.12.16 1.54.1.47-.07 1.47-.6 1.67-1.19.21-.58.21-1.08.14-1.19-.06-.11-.23-.17-.48-.29Z" />
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
     </svg>
   );
 }
 
-export default function CtaBanner() {
+export default function CtaBannerAnimated() {
   const sectionRef = useRef<HTMLElement>(null);
-  const [visible, setVisible] = useState(false);
+  const leftRef = useRef<HTMLDivElement>(null);
+  const rightRef = useRef<HTMLDivElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.3 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+  useGSAP(
+    () => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 80%",
+          once: true,
+        },
+      });
+
+      // Glow pulse in
+      tl.fromTo(
+        glowRef.current,
+        { opacity: 0, scale: 0.5 },
+        { opacity: 0.2, scale: 1, duration: 1.2, ease: "power2.out" }
+      )
+        .fromTo(
+          leftRef.current,
+          { opacity: 0, x: -32 },
+          { opacity: 1, x: 0, duration: 0.7, ease: "power3.out" },
+          "-=0.8"
+        )
+        .fromTo(
+          rightRef.current?.children ?? [],
+          { opacity: 0, y: 16 },
+          { opacity: 1, y: 0, stagger: 0.1, duration: 0.5, ease: "power3.out" },
+          "-=0.4"
+        );
+
+      // Continuous glow pulse
+      gsap.to(glowRef.current, {
+        scale: 1.15,
+        opacity: 0.28,
+        duration: 3,
+        ease: "power1.inOut",
+        repeat: -1,
+        yoyo: true,
+      });
+    },
+    { scope: sectionRef }
+  );
 
   return (
     <section
@@ -37,33 +71,37 @@ export default function CtaBanner() {
       className="relative overflow-hidden py-16"
       style={{ background: "var(--navy)" }}
     >
+      {/* Top gold rule */}
       <div
         aria-hidden
-        className="absolute top-0 left-0 right-0 h-[3px]"
+        className="absolute top-0 left-0 right-0 h-px"
         style={{
           background:
             "linear-gradient(90deg, transparent, var(--gold) 20%, var(--gold) 80%, transparent)",
         }}
       />
+
+      {/* Animated ambient glow */}
       <div
+        ref={glowRef}
         aria-hidden
-        className="pointer-events-none absolute -left-10 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full opacity-20 motion-safe:animate-[pulse_6s_ease-in-out_infinite]"
-        style={{ background: "radial-gradient(circle, var(--gold) 0%, transparent 70%)" }}
+        className="pointer-events-none absolute left-1/4 top-1/2 -translate-y-1/2 h-64 w-64 rounded-full blur-[80px] will-change-transform"
+        style={{ background: "radial-gradient(circle, #C89B3C 0%, transparent 70%)" }}
       />
 
       <div className="container-site relative flex flex-col md:flex-row items-center justify-between gap-10">
-        <div
-          className="flex items-center gap-5 transition-all duration-700 ease-out"
-          style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(16px)",
-          }}
-        >
+        {/* Left */}
+        <div ref={leftRef} className="flex items-center gap-5 opacity-0">
           <div
             className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full"
-            style={{ background: "rgba(201,162,39,0.12)", border: "1px solid rgba(201,162,39,0.35)" }}
+            style={{
+              background: "rgba(201,162,39,0.12)",
+              border: "1px solid rgba(201,162,39,0.35)",
+            }}
           >
-            <Gift className="h-6 w-6" style={{ color: "var(--gold)" }} strokeWidth={1.75} />
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C89B3C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M20 12V22H4V12" /><path d="M22 7H2v5h20V7z" /><path d="M12 22V7" /><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z" /><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z" />
+            </svg>
           </div>
           <div>
             <h2 className="font-playfair text-2xl font-bold text-white">
@@ -75,55 +113,50 @@ export default function CtaBanner() {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-3">
-          {/* WhatsApp — real brand mark, brand green */}
-          <a
+        {/* Right — buttons */}
+        <div ref={rightRef} className="flex flex-wrap gap-3">
+          {/* WhatsApp */}
+          <MagneticButton
+            as="a"
             href="https://wa.me/916268899194"
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-md rounded-lg font-medium inline-flex items-center gap-1 text-white transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30"
-            style={{
-              background: "#25D366",
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(16px)",
-              transitionDelay: "0ms",
-            }}
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold text-white transition-shadow hover:shadow-xl hover:shadow-black/20"
+            style={{ background: "#25D366" }}
           >
-            <WhatsAppIcon className="h-5 w-5" />
+            <WhatsAppIcon className="w-4 h-4" />
             WhatsApp
-          </a>
+          </MagneticButton>
 
-          {/* Get quote */}
-          <Link
+          {/* Get Quote */}
+          <MagneticButton
+            as="a"
             href="/bulk-orders#inquiry-form"
-            className="btn-gold rounded-lg font-medium inline-flex items-center gap-2 transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30"
-            style={{
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(16px)",
-              transitionDelay: "80ms",
-            }}
+            className="btn-gold inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold"
           >
-            <FileText className="h-4 w-4" strokeWidth={2} />
-            Get quote
-          </Link>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" />
+            </svg>
+            Get Quote
+          </MagneticButton>
 
-          {/* Book meeting */}
-          <Link
+          {/* Book Meeting */}
+          <MagneticButton
+            as="a"
             href="/contact"
-            className="btn-md rounded-lg font-medium inline-flex items-center gap-2 text-white border transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-white/10 hover:shadow-lg hover:shadow-black/30"
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold text-white transition-all hover:bg-white/10"
             style={{
-              borderColor: "rgba(255,255,255,0.45)",
+              border: "1px solid rgba(255,255,255,0.3)",
               background: "rgba(255,255,255,0.04)",
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(16px)",
-              transitionDelay: "160ms",
             }}
           >
-            <CalendarClock className="h-4 w-4" strokeWidth={2} color="currentColor" />
-            Book meeting
-          </Link>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            Book Meeting
+          </MagneticButton>
         </div>
       </div>
-    </section >
+    </section>
   );
 }

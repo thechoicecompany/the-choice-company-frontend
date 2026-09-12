@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import Image from "next/image";
 import NewsletterForm from "./NewsletterForm";
@@ -35,6 +36,12 @@ const SOCIALS = [
   { label: "WhatsApp", href: "https://wa.me/916268899194", icon: "/icons/whatsapp.png" },
 ];
 
+const LEGAL_LINKS = [
+  { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Terms & Conditions", href: "/terms" },
+  { label: "FAQ", href: "/faq" },
+];
+
 export default function Footer() {
   return (
     <footer style={{ background: "var(--navy)" }} className="text-white">
@@ -62,7 +69,7 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-xs text-white/50 leading-relaxed mb-5 max-w-56">
-              India's trusted bulk corporate gifting partner — custom branded gifts delivered pan-India since 2010.
+              India's trusted bulk corporate gifting partner — custom branded gifts delivered pan-India since 2025.
             </p>
 
             {/* Social Icons */}
@@ -171,35 +178,12 @@ export default function Footer() {
             <p className="text-xs text-white/40 mb-3">
               Get updates on new collections &amp; offers.
             </p>
-            {/* <form action="/api/newsletter" method="POST" className="flex">
-              <input
-                type="email"
-                name="email"
-                placeholder="Your email address"
-                required
-                className="flex-1 px-3 py-2 text-xs text-gray-800 rounded-l-lg outline-none border-0"
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 text-white text-sm rounded-r-lg font-medium flex-shrink-0 transition-opacity hover:opacity-90"
-                style={{ background: "var(--gold)" }}
-                aria-label="Subscribe to newsletter"
-              >
-                →
-              </button>
-            </form> */}
-            <h4 className="text-sm font-semibold mb-3" style={{ color: "var(--gold)" }}>
-              Newsletter
-            </h4>
-            <p className="text-xs text-white/40 mb-3">
-              Get updates on new collections &amp; offers.
-            </p>
             <NewsletterForm />
           </div>
         </div>
       </div>
 
-      {/* Trust Bar */}
+      {/* Trust Bar
       <div className="border-t border-white/10 py-4">
         <div className="container-site flex flex-wrap justify-center gap-6">
           {["GST Registered", "500+ Corporate Clients", "Pan-India Delivery", "10+ Years Experience"].map((item) => (
@@ -208,7 +192,7 @@ export default function Footer() {
             </span>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Bottom Bar */}
       <div className="border-t border-white/5 py-4">
@@ -217,12 +201,15 @@ export default function Footer() {
             © {new Date().getFullYear()} The Choice Company. All Rights Reserved.
           </p>
           <div className="flex gap-5">
-            <Link href="/privacy-policy" className="text-xs text-white/30 hover:text-white/60 transition-colors">
-              Privacy Policy
-            </Link>
-            <Link href="/terms" className="text-xs text-white/30 hover:text-white/60 transition-colors">
-              Terms &amp; Conditions
-            </Link>
+            {LEGAL_LINKS.map(({ label, href }) => (
+              <Link
+                key={href}
+                href={href}
+                className="text-xs text-white/30 hover:text-white/60 transition-colors"
+              >
+                {label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>

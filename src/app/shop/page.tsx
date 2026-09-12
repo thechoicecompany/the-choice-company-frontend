@@ -1,10 +1,9 @@
-// app/shop/page.tsx
-// SHOP PAGE — ISR 1hr, revalidated on-demand by admin CRUD writes
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/layout/PageHero";
-import ShopGrid from "@/components/shop/ShopGrid";
+import ShopGridAnimated from "@/components/shop/ShopGrid";
 import ShopBanner from "@/components/shop/ShopBanner";
+import ScrollRevealWrapper from "@/components/ui/ScrollRevealWrapper";
 import { fetchSampleProducts } from "@/lib/api/sampleProducts";
 
 export const revalidate = 3600;
@@ -27,21 +26,24 @@ export default async function ShopPage() {
                 breadcrumbs={[{ label: "Home", href: "/" }, { label: "Sample Shop" }]}
             />
 
-            <ShopBanner />
+            <ScrollRevealWrapper variant="fadeUp" threshold={0.1}>
+                <ShopBanner />
+            </ScrollRevealWrapper>
 
             <section className="section-py" style={{ background: "var(--cream)" }}>
                 <div className="container-site">
                     <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
                         <div>
                             <span className="section-label">SAMPLE PRODUCTS</span>
-                            <h2 className="section-title text-2xl">Order Samples</h2>
+                            <h2 className="section-title text-2xl mt-1">Order Samples</h2>
                         </div>
-                        <Link href="/bulk-orders#inquiry-form"
-                            className="btn-outline-navy text-sm">
+                        <Link href="/bulk-orders#inquiry-form" className="btn-outline-navy text-sm">
                             📋 Skip to Bulk Order →
                         </Link>
                     </div>
-                    <ShopGrid products={products} />
+
+                    {/* Animated grid with TiltCard + stagger */}
+                    <ShopGridAnimated products={products} />
                 </div>
             </section>
 

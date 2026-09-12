@@ -20,10 +20,18 @@ export default function ShopProductDetail({ product }: { product: SampleProduct 
     if (inCart) {
       updateQty(product.id, Math.min((cartItem?.quantity ?? 0) + qty, product.maxSampleQty));
     } else {
+      // addItem({
+      //   id: product.id, name: product.name, slug: product.slug,
+      //   image: product.image, category: product.category,
+      //   samplePrice: product.samplePrice, maxSampleQty: product.maxSampleQty,
+      //   moq: product.moq,
+      // });
       addItem({
         id: product.id, name: product.name, slug: product.slug,
         image: product.image, category: product.category,
-        samplePrice: product.samplePrice, maxSampleQty: product.maxSampleQty,
+        samplePrice: product.samplePrice,
+        bulkPrice: product.bulkPrice,   // ← add this
+        maxSampleQty: product.maxSampleQty,
         moq: product.moq,
       });
       if (qty > 1) updateQty(product.id, qty);

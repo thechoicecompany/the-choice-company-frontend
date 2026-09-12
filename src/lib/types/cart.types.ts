@@ -1,3 +1,5 @@
+
+
 // ─── ECOMMERCE TYPES ─────────────────────────────────────────────────────────
 
 export interface SampleProduct {
@@ -77,3 +79,4 @@ export interface ShippingAddress {
   pincode: string;
   country: string;
 }
+

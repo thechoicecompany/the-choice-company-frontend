@@ -1,6 +1,9 @@
+@import "../styles/animations.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
 
 /* ── DESIGN TOKENS ─────────────────────────────────────────────────────── */
 :root {
@@ -30,11 +33,21 @@
     --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.06);
     --shadow-card-hover: 0 8px 32px rgba(0, 0, 0, 0.10);
 
-    /* Z-index */
-    --z-navbar: 100;
-    --z-modal: 200;
-    --z-toast: 300;
-    --z-whatsapp: 400;
+    /* Z-index scale — every stacking-context layer in the app should pull
+       from one of these instead of a hardcoded z-50 / z-[500] / z-[600].
+       Higher = closer to the user. Layers that never appear on screen at
+       the same time (ExitIntentPopup, QuickInquiryForm, CatalogGateModal,
+       GalleryLightbox) intentionally share --z-modal — there's no need to
+       stack them relative to each other, only above everything else. */
+    --z-base: 1;
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-navbar: 300;
+    --z-modal-backdrop: 400;
+    --z-modal: 500;
+    --z-toast: 600;
+    --z-tooltip: 700;
+    --z-whatsapp: 800;
 }
 
 /* ── GLOBAL BASE ────────────────────────────────────────────────────────── */
@@ -44,23 +57,6 @@
     *::before,
     *::after {
         box-sizing: border-box;
-    }
-
-    /* Pehla — @layer base me */
-    .container-site {
-        @apply mx-auto w-full px-6;
-        max-width: 100%;
-    }
-
-    @media (min-width: 1536px) {
-        .container-site {
-            max-width: 1600px;
-        }
-    }
-
-    /* Dusra — @layer components me (neeche) */
-    .container-site {
-        @apply mx-auto w-full max-w-7xl px-6;
     }
 
     html {
@@ -143,8 +139,12 @@
         transform: translateY(-2px);
     }
 
+    /* Single source of truth — the earlier duplicate definition inside
+       @layer base has been removed. Components loads after base, so that
+       duplicate was silently winning anyway; keeping only this one avoids
+       two conflicting max-width/padding rules fighting for the same class. */
     .container-site {
-        @apply mx-auto w-full max-w-7xl px-6;
+        @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
     }
 
     .section-spacing {
@@ -216,4 +216,136 @@
 
 .input {
     @apply w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-navy/20;
+}
+
+
+.input-error {
+    border-color: #ef4444 !important;
+    background-color: #fef2f2;
+}
+
+.input-error:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.error-msg {
+    color: #dc2626;
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+
+
+/* Add these missing classes to your @layer components block */
+
+.btn-outline-navy {
+    @apply inline-flex items-center gap-2 px-5 py-3 rounded-md text-sm font-medium transition-all duration-200;
+    border: 1.5px solid var(--navy);
+    color: var(--navy);
+}
+
+.btn-outline-navy:hover {
+    background: var(--navy);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-sm {
+    @apply px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200;
+}
+
+.section-py {
+    @apply py-16 md:py-20;
+}
+
+/* Badge variants */
+.badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+}
+
+.badge-navy {
+    @apply badge;
+    background: var(--navy);
+    color: white;
+}
+
+.badge-gold {
+    @apply badge;
+    background: rgba(200, 155, 60, 0.12);
+    color: #92700A;
+    border: 1px solid rgba(200, 155, 60, 0.3);
+}
+
+.badge-gray {
+    @apply badge;
+    background: var(--gray-100);
+    color: var(--gray-600);
+}
+
+.badge-green {
+    @apply badge;
+    background: #DCFCE7;
+    color: #166534;
+}
+
+.badge-teal {
+    @apply badge;
+    background: rgba(26, 92, 74, 0.1);
+    color: var(--teal);
+}
+
+/* Form utilities */
+.form-group {
+    @apply flex flex-col gap-1;
+}
+
+.form-label {
+    @apply text-xs font-semibold text-gray-600 uppercase tracking-wide;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    @apply w-full px-4 py-3 rounded-xl border border-gray-200 text-sm transition-all duration-200;
+    background: #FAFAFA;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    @apply outline-none border-gold;
+    box-shadow: 0 0 0 3px rgba(200, 155, 60, 0.15);
+    background: white;
+}
+
+/* Admin input */
+.admin-input {
+    @apply w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none bg-gray-50 focus:bg-white transition-all;
+    --tw-ring-color: rgba(13, 27, 42, 0.15);
+}
+
+/* Premium selection color */
+::selection {
+    background: rgba(200, 155, 60, 0.2);
+    color: var(--navy);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--gray-400);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--navy);
 }

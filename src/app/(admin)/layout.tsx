@@ -31,6 +31,21 @@ function AdminShell({ children }: { children: React.ReactNode }) {
         isLogin,
         router,
     ]);
+
+    // Belt-and-braces bfcache guard. Cache-Control: no-store (set in
+    // middleware.ts) already keeps Chromium from bfcache-restoring this
+    // page, but Firefox/Safari don't always honor that for bfcache
+    // specifically. If a page IS restored from bfcache anyway, this forces
+    // a real reload so middleware re-runs and the token gets re-verified,
+    // instead of leaving a frozen, possibly-logged-out page on screen.
+    useEffect(() => {
+        const onPageShow = (e: PageTransitionEvent) => {
+            if (e.persisted) window.location.reload();
+        };
+        window.addEventListener("pageshow", onPageShow);
+        return () => window.removeEventListener("pageshow", onPageShow);
+    }, []);
+
     // Login page — no sidebar
     if (isLogin) return <>{children}</>;
 

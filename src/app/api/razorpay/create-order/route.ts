@@ -1,66 +1,82 @@
 import { NextRequest, NextResponse } from "next/server";
+import Razorpay from "razorpay";
+import { verifyRecaptcha } from "@/lib/utils/verifyRecaptcha";
 
-const KEY_ID     = process.env.RAZORPAY_KEY_ID!;
-const KEY_SECRET = process.env.RAZORPAY_KEY_SECRET!;
-
-if (!KEY_ID || !KEY_SECRET) {
-  throw new Error("[startup] RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET must be set in env");
-}
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID!,
+  key_secret: process.env.RAZORPAY_KEY_SECRET!,
+});
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { amount, receipt, notes } = body;
+    const { cartItems, couponCode, recaptchaToken } = body;
 
-    // Server-side guard — amount must be a positive number
-    if (!amount || typeof amount !== "number" || amount < 1) {
+    if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
+      return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
+    }
+
+    const recaptchaOk = await verifyRecaptcha(recaptchaToken);
+    if (!recaptchaOk) {
       return NextResponse.json(
-        { success: false, error: "Invalid amount" },
+        { error: "reCAPTCHA verification failed" },
         { status: 400 }
       );
     }
 
-    // Razorpay requires paise (₹1 = 100 paise)
-    const amountInPaise = Math.round(amount * 100);
+    const priceRes = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/cart/compute-price`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cartItems, couponCode }),
+      }
+    );
 
-    const razorpayRes = await fetch("https://api.razorpay.com/v1/orders", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // Public + Secret together for Basic Auth — this runs server-side only
-        Authorization:
-          "Basic " + Buffer.from(`${KEY_ID}:${KEY_SECRET}`).toString("base64"),
-      },
-      body: JSON.stringify({
-        amount:   amountInPaise,
-        currency: "INR",
-        receipt:  receipt || `TCC-${Date.now()}`,
-        notes:    notes   || {},
-      }),
-    });
-
-    const data = await razorpayRes.json();
-
-    if (!razorpayRes.ok) {
-      console.error("[create-order] Razorpay API error:", data);
+    if (!priceRes.ok) {
+      const errBody = await priceRes.json().catch(() => ({}));
+      console.error("[create-order] compute-price failed:", errBody);
       return NextResponse.json(
-        { success: false, error: data?.error?.description || "Order creation failed" },
-        { status: razorpayRes.status }
+        { error: "Failed to compute order price" },
+        { status: 400 }
       );
     }
 
+    const priceJson = await priceRes.json();
+
+    // ✅ Spring wraps all responses in ApiResponse<T> — actual payload is under .data
+    const priceData = priceJson.data ?? priceJson;
+    const { subtotal, discount, total, finalAmountPaise } = priceData;
+
+    console.log("[create-order] computed price:", { subtotal, discount, total, finalAmountPaise });
+
+    if (!finalAmountPaise || finalAmountPaise < 100) {
+      return NextResponse.json(
+        { error: "Invalid order amount" },
+        { status: 400 }
+      );
+    }
+
+    const order = await razorpay.orders.create({
+      amount: finalAmountPaise,
+      currency: "INR",
+      receipt: `receipt_${Date.now()}`,
+    });
+
     return NextResponse.json({
-      success:  true,
-      orderId:  data.id,       // "order_xxxxxxxxxxxx" — passed to Razorpay modal
-      amount:   data.amount,   // in paise — pass as-is to modal, do NOT re-multiply
-      currency: data.currency,
-      keyId:    KEY_ID,        // public key — safe to send to browser
+      orderId: order.id,
+      amount: finalAmountPaise,
+      subtotal,
+      discount,
+      total,
+      currency: "INR",
+      key: process.env.RAZORPAY_KEY_ID,
     });
 
   } catch (err) {
     console.error("[create-order] Unexpected error:", err);
     return NextResponse.json(
-      { success: false, error: "Internal server error" },
+      { error: "Order creation failed" },
       { status: 500 }
     );
   }
