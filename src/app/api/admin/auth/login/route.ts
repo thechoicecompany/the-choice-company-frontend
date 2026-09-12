@@ -91,6 +91,11 @@ export async function POST(req: NextRequest) {
     }
 
     const { token, expiresIn, user } = data.data;
+    //── TEMPORARY DEBUG — remove after fixing ─────────────────────────────────
+    console.log("[debug] token prefix:", token?.slice(0, 20));
+    console.log("[debug] expiresIn:", expiresIn);
+    console.log("[debug] user:", JSON.stringify(user));
+    console.log("[debug] JWT_SECRET prefix:", process.env.JWT_SECRET?.slice(0, 10));
 
     if (!token || !user) {
         return NextResponse.json(
@@ -112,3 +117,4 @@ export async function POST(req: NextRequest) {
 
     return response;
 }
+
