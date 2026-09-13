@@ -110,6 +110,7 @@ const nextConfig: NextConfig = {
             "http://localhost:8089",
             "http://127.0.0.1:8089",
             "https://api.thechoicecompany.in",
+            "https://the-choice-company-backend.onrender.com",
             "https://graph.facebook.com",
             "https://www.google.com",
             "https://api.razorpay.com",
