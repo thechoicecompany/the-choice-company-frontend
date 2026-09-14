@@ -62,7 +62,7 @@ export async function fetchAllProductSlugs(): Promise<string[]> {
 }
 
 export async function fetchFeaturedProducts(): Promise<Product[]> {
-  const res = await springApi.get<ApiEnvelope<Product[]>>("/api/products/featured?limit=6");
+  const res = await springApi.get<ApiEnvelope<Product[]>>("/api/products/featured?limit=12");
   return res.data?.data ?? [];
 }
 

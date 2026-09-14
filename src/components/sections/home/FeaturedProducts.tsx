@@ -55,7 +55,7 @@ function ImageCarousel({ images, productName, productSlug }: { images: string[];
 }
 
 export default function FeaturedProductsAnimated({ products }: { products: Product[] }) {
-  const items = products.slice(0, 6); const sectionRef = useRef<HTMLElement>(null);
+  const items = products; const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 

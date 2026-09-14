@@ -16,8 +16,8 @@ const NAV_LINKS = [
   { href: "/products", label: "Our Products" },
   { href: "/shop", label: "Sample Shop", badge: "Try Now" },
   { href: "/industries", label: "Industries" },
-  { href: "/build-your-kit", label: "Build Your Kit", highlight: true },
-  { href: "/gallery", label: "Gallery" },
+  // { href: "/build-your-kit", label: "Build Your Kit", highlight: true },
+  { href: "/gallery", label: "Gallery", highlight: false },
   { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact Us" },
 ];
@@ -167,8 +167,8 @@ export default function NavbarAnimated() {
                     <Link
                       href={href}
                       className={`group relative flex items-center whitespace-nowrap rounded-lg px-1.5 py-2 text-[10px] transition-all duration-200 lg:px-2 lg:text-[11px] xl:px-3 xl:py-2.5 xl:text-[13px] ${isActive(href)
-                          ? "font-semibold text-navy"
-                          : "font-medium text-gray-600 hover:text-navy"
+                        ? "font-semibold text-navy"
+                        : "font-medium text-gray-600 hover:text-navy"
                         }`}
                     >
                       {label}
@@ -183,8 +183,8 @@ export default function NavbarAnimated() {
                       {/* Active / hover underline */}
                       <span
                         className={`absolute bottom-0.5 left-1.5 right-1.5 h-[2px] origin-center rounded-full transition-all duration-300 xl:left-3 xl:right-3 ${isActive(href)
-                            ? "scale-x-100 opacity-100"
-                            : "scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-50"
+                          ? "scale-x-100 opacity-100"
+                          : "scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-50"
                           }`}
                         style={{ background: "var(--gold)" }}
                       />
@@ -287,10 +287,10 @@ export default function NavbarAnimated() {
                   href={href}
                   onClick={close}
                   className={`nav-item group flex min-h-[48px] items-center gap-3 rounded-xl px-4 text-[14px] transition-all duration-200 opacity-0 ${highlight
-                      ? "font-bold text-white shadow-sm"
-                      : isActive(href)
-                        ? "font-semibold"
-                        : "font-medium text-gray-700 hover:bg-gray-50"
+                    ? "font-bold text-white shadow-sm"
+                    : isActive(href)
+                      ? "font-semibold"
+                      : "font-medium text-gray-700 hover:bg-gray-50"
                     }`}
                   style={
                     highlight

@@ -55,7 +55,7 @@ export default async function HomePage() {
       <ProcessFlowAnimated />
 
       {/* Social Proof — internal GSAP counters + stagger */}
-      <SocialProofAnimated />
+      {/* <SocialProofAnimated /> */}
 
       {/* CTA Banner — internal GSAP */}
       <CtaBannerAnimated />

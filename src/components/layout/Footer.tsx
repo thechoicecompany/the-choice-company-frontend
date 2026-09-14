@@ -7,7 +7,7 @@ import { Label } from "recharts";
 const QUICK_LINKS = [
   { label: "About Us", href: "/about" },
   { label: "Our Products", href: "/products" },
-  { label: "Build Your Kit", href: "/build-your-kit" },
+  // { label: "Build Your Kit", href: "/build-your-kit" },
   { label: "Bulk Orders", href: "/bulk-orders" },
   { label: "Industries", href: "/industries" },
   { label: "Gallery", href: "/gallery" },
@@ -15,18 +15,21 @@ const QUICK_LINKS = [
   { label: "Contact Us", href: "/contact" },
   // In your footer links or header nav
   { label: "Track Order", href: "/track-order" },
+  { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Terms & Conditions", href: "/terms" },
+  { label: "FAQ", href: "/faq" },
 ];
 
 const CATEGORIES = [
-  { label: "Gift Hampers", href: "/products?category=gift-hampers" },
-  { label: "Laptop Bags", href: "/products?category=laptop-bags" },
-  { label: "Drinkware", href: "/products?category=drinkware" },
-  { label: "Office Essentials", href: "/products?category=office-essentials" },
-  { label: "Apparel", href: "/products?category=apparel" },
-  { label: "Eco-Friendly Gifts", href: "/products?category=eco-friendly" },
-  { label: "Travel Kits", href: "/products?category=travel-kits" },
-  { label: "Premium Gifts", href: "/products?category=premium" },
-  { label: "Custom Merchandise", href: "/products?category=custom-merchandise" },
+  { label: "Diwali Gifts", href: "/products/category/diwali-gifts" },
+  { label: "New Year Gifts", href: "/products/category/new-year-gifts" },
+  { label: "Festive Hampers", href: "/products/category/festive-hampers" },
+  { label: "Electronics", href: "/products/category/electronics" },
+  { label: "Bags", href: "/products/category/bags" },
+  { label: "Trolley Bags", href: "/products/category/trolley-bags" },
+  { label: "Laptop Bags", href: "/products/category/laptop-bags" },
+  { label: "Gift Hampers", href: "/products/category/gift-hampers" },
+  { label: "Employee Kits", href: "/products/category/employee-kits" },
 ];
 
 const SOCIALS = [
@@ -35,13 +38,6 @@ const SOCIALS = [
   { label: "LinkedIn", href: "https://linkedin.com/company/thechoicecompany", icon: "/icons/linkedin.png" },
   { label: "WhatsApp", href: "https://wa.me/916268899194", icon: "/icons/whatsapp.png" },
 ];
-
-const LEGAL_LINKS = [
-  { label: "Privacy Policy", href: "/privacy-policy" },
-  { label: "Terms & Conditions", href: "/terms" },
-  { label: "FAQ", href: "/faq" },
-];
-
 export default function Footer() {
   return (
     <footer style={{ background: "var(--navy)" }} className="text-white">
@@ -51,13 +47,13 @@ export default function Footer() {
           {/* Col 1 — Brand */}
           <div className="col-span-2 md:col-span-4 lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <Image
-                src="/logo.png"
+              {/* <Image
+                src="/logo1.png"
                 alt="The Choice Company"
-                width={68}
-                height={68}
+                width={150}
+                height={150}
                 className="rounded-xl object-contain"
-              />
+              /> */}
               <div>
                 <div className="text-sm font-bold">THE CHOICE COMPANY</div>
                 <div
@@ -138,7 +134,7 @@ export default function Footer() {
                 className="flex items-start gap-2 hover:text-white transition-colors"
               >
                 <span className="mt-0.5">📞</span>
-                <span>+91 916268 899194</span>
+                <span>+91 6268 899194</span>
               </a>
               <a
                 href="mailto:info@thechoicecompany.in"
@@ -182,35 +178,12 @@ export default function Footer() {
           </div>
         </div>
       </div>
-
-      {/* Trust Bar
-      <div className="border-t border-white/10 py-4">
-        <div className="container-site flex flex-wrap justify-center gap-6">
-          {["GST Registered", "500+ Corporate Clients", "Pan-India Delivery", "10+ Years Experience"].map((item) => (
-            <span key={item} className="text-xs text-white/40 flex items-center gap-1.5">
-              <span className="text-gold">✓</span> {item}
-            </span>
-          ))}
-        </div>
-      </div> */}
-
       {/* Bottom Bar */}
       <div className="border-t border-white/5 py-4">
-        <div className="container-site flex flex-col sm:flex-row justify-between items-center gap-2">
+        <div className="container-site flex justify-center items-center">
           <p className="text-xs text-white/30">
             © {new Date().getFullYear()} The Choice Company. All Rights Reserved.
           </p>
-          <div className="flex gap-5">
-            {LEGAL_LINKS.map(({ label, href }) => (
-              <Link
-                key={href}
-                href={href}
-                className="text-xs text-white/30 hover:text-white/60 transition-colors"
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
         </div>
       </div>
     </footer>
