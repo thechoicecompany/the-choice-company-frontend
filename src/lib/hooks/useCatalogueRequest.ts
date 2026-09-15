@@ -1,58 +1,79 @@
-"use client";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import { CatalogueRequestSchema, type CatalogueRequestFormData } from "@/lib/validations/catalogue.schema";
+import { z } from "zod";
 
+const schema = z.object({
+    email: z.string().email("Valid email required"),
+    phone: z
+        .string()
+        .min(10, "Enter a valid 10-digit mobile number")
+        .max(10, "Enter a valid 10-digit mobile number"),
+    companyName: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof schema>;
+
+const API = process.env.NEXT_PUBLIC_API_URL ?? "";
 const UNLOCK_KEY = "tcc_catalog_unlocked";
 
-/** Has this visitor already passed the contact gate? Unlocks all gallery PDFs once true. */
 export function isCatalogUnlocked(): boolean {
     if (typeof window === "undefined") return false;
     return localStorage.getItem(UNLOCK_KEY) === "true";
 }
 
-export function useCatalogueRequest() {
-    const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
-    const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+// NEW — called by CatalogRequestForm on successful /api/inquiry submit
+export function markCatalogUnlocked(): void {
+    if (typeof window === "undefined") return;
+    localStorage.setItem(UNLOCK_KEY, "true");
+}
 
-    const form = useForm<CatalogueRequestFormData>({
-        resolver: zodResolver(CatalogueRequestSchema),
-        defaultValues: { email: "", companyName: "", phone: "", source: "catalog_page" },
+export type RequestStatus = "idle" | "submitting" | "success" | "error";
+
+export function useCatalogueRequest() {
+    const [status, setStatus] = useState<RequestStatus>("idle");
+    const [errorMessage, setErrorMessage] = useState<string>("");
+
+    const form = useForm<FormValues>({
+        resolver: zodResolver(schema),
     });
 
-    const onSubmit = async (data: CatalogueRequestFormData) => {
+    const onSubmit = form.handleSubmit(async (values) => {
         setStatus("submitting");
-        setErrorMessage(null);
-        try {
-            const payload = {
-                ...data,
-                pageUrl: typeof window !== "undefined" ? window.location.href : undefined,
-            };
+        setErrorMessage("");
 
-            const res = await fetch("/api/catalogue", {
+        try {
+            const res = await fetch(`${API}/api/catalogue/request`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
+                body: JSON.stringify({
+                    ...values,
+                    source: "catalog_page",
+                    pageUrl: typeof window !== "undefined"
+                        ? window.location.href
+                        : undefined,
+                }),
             });
+
             const json = await res.json();
-            if (!res.ok || !json.success) throw new Error(json.error || "Something went wrong");
 
-            // Old static-catalogue flow returns a downloadUrl; gallery gate doesn't need one.
-            setDownloadUrl(json.data?.downloadUrl ?? null);
-            setStatus("success");
-
-            if (typeof window !== "undefined") {
-                localStorage.setItem(UNLOCK_KEY, "true");
+            if (!res.ok) {
+                throw new Error(
+                    json.message ?? "Something went wrong. Please try again."
+                );
             }
 
-            form.reset();
+            markCatalogUnlocked();
+            setStatus("success");
         } catch (err) {
-            setErrorMessage(err instanceof Error ? err.message : "Something went wrong.");
             setStatus("error");
+            setErrorMessage(
+                err instanceof Error
+                    ? err.message
+                    : "Something went wrong. Please try again."
+            );
         }
-    };
+    });
 
-    return { form, onSubmit: form.handleSubmit(onSubmit), status, downloadUrl, errorMessage };
+    return { form, onSubmit, status, errorMessage };
 }

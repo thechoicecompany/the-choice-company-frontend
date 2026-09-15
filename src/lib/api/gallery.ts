@@ -22,6 +22,7 @@ export interface GalleryItem {
   sortOrder: number;
   fileType: FileType;
   thumbnailUrl: string;
+  fileUrl?: string;
 }
 
 export interface GalleryItemDetail extends GalleryItem {

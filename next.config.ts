@@ -87,6 +87,8 @@ const nextConfig: NextConfig = {
             "'unsafe-eval'",
             "'unsafe-inline'",
             "https://www.google.com",
+            "https://docs.google.com",
+            "https://res.cloudinary.com",
             "https://www.gstatic.com",
             "https://checkout.razorpay.com",
             "https://api.razorpay.com",

@@ -1,13 +1,14 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import type { GalleryItem, FileType } from "@/lib/api/gallery";
 import { isCatalogUnlocked } from "@/lib/hooks/useCatalogueRequest";
 import { useLazyLoad } from "@/lib/hooks/useLazyLoad";
-import GalleryLightbox from "./GalleryLightbox";
-import CatalogGateModal from "@/components/catalog/CatalogGateModal";
 
-const TABS = ["All", "products", "packaging", "branding", "events", "corporate"] as const;
+const TABS = [
+  "All", "products", "packaging", "branding", "events", "corporate",
+] as const;
 
 const TYPE_ICON: Record<FileType, string> = {
   image: "🖼", pdf: "📄", poster: "🗞", document: "📑", video: "🎬",
@@ -16,9 +17,27 @@ const TYPE_LABEL: Record<FileType, string> = {
   image: "Image", pdf: "PDF", poster: "Poster", document: "Doc", video: "Video",
 };
 const HEIGHT_MAP = [220, 280, 240, 300, 260];
+const PENDING_ITEM_KEY = "tcc_pending_download_item";
+
+function downloadDirectly(fileUrl: string, filename: string) {
+  const url = fileUrl.replace(
+    /\/(image|raw|video)\/upload\//,
+    "/$1/upload/fl_attachment/"
+  );
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
 
 function GalleryCard({
-  item, index, onClick,
+  item,
+  index,
+  onClick,
 }: {
   item: GalleryItem;
   index: number;
@@ -59,7 +78,9 @@ function GalleryCard({
         </span>
 
         <div className="absolute inset-0 bg-navy/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-          <span className="text-white text-sm font-medium tracking-wide">Open ↗</span>
+          <span className="text-white text-sm font-medium tracking-wide">
+            Download ↓
+          </span>
         </div>
       </div>
 
@@ -68,7 +89,9 @@ function GalleryCard({
         <div className="flex items-center justify-between mt-1">
           <span className="badge-gray text-[10px] capitalize">{item.category}</span>
           {item.clientIndustry && (
-            <span className="text-[10px] text-gray-400 truncate max-w-[80px]">{item.clientIndustry}</span>
+            <span className="text-[10px] text-gray-400 truncate max-w-[80px]">
+              {item.clientIndustry}
+            </span>
           )}
         </div>
       </div>
@@ -78,9 +101,7 @@ function GalleryCard({
 
 export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
   const [tab, setTab] = useState<string>("All");
-  const [lightboxItem, setLightboxItem] = useState<GalleryItem | null>(null);
-  // Item the user tried to open before passing the contact gate
-  const [pendingItem, setPendingItem] = useState<GalleryItem | null>(null);
+  const router = useRouter();
 
   const filtered = useMemo(
     () => (tab === "All" ? items : items.filter((i) => i.category === tab)),
@@ -88,17 +109,33 @@ export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
   );
 
   function handleCardClick(item: GalleryItem) {
+    if (!item.fileUrl) return;
+
     if (isCatalogUnlocked()) {
-      setLightboxItem(item);
-    } else {
-      setPendingItem(item);
+      downloadDirectly(item.fileUrl, `${item.projectName}.pdf`);
+      return;
     }
+
+    // Remember which item they wanted, so we can auto-download
+    // it once they come back unlocked.
+    sessionStorage.setItem(PENDING_ITEM_KEY, String(item.id));
+    // router.push(`/catalogues?returnTo=${encodeURIComponent("/gallery")}`);
+    router.push(`/catalog?returnTo=${encodeURIComponent("/gallery")}`);
   }
 
-  function handleGateSuccess() {
-    setLightboxItem(pendingItem);
-    setPendingItem(null);
-  }
+  // Auto-resume: if the user just unlocked via /catalogues and
+  // landed back here with a pending item, download it now.
+  useEffect(() => {
+    const pendingId = sessionStorage.getItem(PENDING_ITEM_KEY);
+    if (!pendingId || !isCatalogUnlocked()) return;
+
+    const item = items.find((i) => String(i.id) === pendingId);
+    if (item?.fileUrl) {
+      downloadDirectly(item.fileUrl, `${item.projectName}.pdf`);
+    }
+    sessionStorage.removeItem(PENDING_ITEM_KEY);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items]);
 
   return (
     <>
@@ -107,7 +144,8 @@ export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`badge capitalize transition-colors ${tab === t ? "badge-navy" : "badge-gray"}`}
+            className={`badge capitalize transition-colors ${tab === t ? "badge-navy" : "badge-gray"
+              }`}
           >
             {t}
           </button>
@@ -115,24 +153,15 @@ export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-gray-400 text-sm text-center py-20">No items in this category yet.</p>
+        <p className="text-gray-400 text-sm text-center py-20">
+          No items in this category yet.
+        </p>
       ) : (
         <div className="columns-2 md:columns-3 lg:columns-4 gap-4">
           {filtered.map((item, i) => (
             <GalleryCard key={item.id} item={item} index={i} onClick={handleCardClick} />
           ))}
         </div>
-      )}
-
-      {lightboxItem && (
-        <GalleryLightbox item={lightboxItem} onClose={() => setLightboxItem(null)} />
-      )}
-
-      {pendingItem && (
-        <CatalogGateModal
-          onClose={() => setPendingItem(null)}
-          onSuccess={handleGateSuccess}
-        />
       )}
     </>
   );
