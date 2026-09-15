@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import CatalogRequestForm from "@/components/forms/CatalogRequestForm";
 
 export const metadata: Metadata = {
@@ -22,7 +23,9 @@ export default function CataloguesPage() {
 
             <section className="max-w-3xl mx-auto px-6 py-14">
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8">
-                    <CatalogRequestForm />
+                    <Suspense fallback={<div className="animate-pulse text-gray-400 text-center py-8">Loading form...</div>}>
+                        <CatalogRequestForm />
+                    </Suspense>
                 </div>
             </section>
         </div>
