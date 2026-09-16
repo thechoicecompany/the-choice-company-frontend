@@ -15,7 +15,7 @@ export class ApiError extends Error {
 export const springApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: { "Content-Type": "application/json" },
-  timeout: 10_000,
+  timeout: 60_000,
 });
 
 springApi.interceptors.request.use((config) => {
@@ -51,7 +51,7 @@ springApi.interceptors.response.use(
 export const adminApi = axios.create({
   baseURL: "/api/proxy",
   headers: { "Content-Type": "application/json" },
-  timeout: 10_000,
+  timeout: 60_000,
 });
 
 adminApi.interceptors.response.use(

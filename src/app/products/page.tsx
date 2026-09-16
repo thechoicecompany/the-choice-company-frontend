@@ -3,7 +3,7 @@ import PageHero from "@/components/layout/PageHero";
 import ProductFilters from "@/components/sections/products/ProductFilters";
 import ProductGrid from "@/components/sections/products/ProductGrid";
 import BudgetFilter from "@/components/sections/products/BudgetFilter";
-
+import MobileFilterDrawer from "@/components/sections/products/MobileFilterDrawer";
 import { fetchProducts } from "@/lib/api/products";
 
 export const revalidate = 3600;
@@ -46,10 +46,20 @@ export default async function ProductsPage({ searchParams }: Props) {
       <BudgetFilter />
       <section className="section-py">
         <div className="container-site">
-          <div className="flex flex-col lg:flex-row gap-8">
-            <aside className="w-full lg:w-64 flex-shrink-0">
-              <ProductFilters activeFilters={p} />
+          {/* Mobile filter button — only visible on small screens */}
+          <div className="lg:hidden mb-4">
+            <MobileFilterDrawer activeFilters={p} />
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Desktop sidebar — hidden on mobile */}
+            <aside className="hidden lg:block w-52 flex-shrink-0">
+              <div className="sticky top-24">
+                <ProductFilters activeFilters={p} />
+              </div>
             </aside>
+
+            {/* Products always on top on mobile */}
             <div className="flex-1 min-w-0">
               <ProductGrid products={products} total={total} />
             </div>

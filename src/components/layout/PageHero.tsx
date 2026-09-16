@@ -35,7 +35,7 @@ export default function PageHero({ title, subtitle, breadcrumbs = [] }: Props) {
             ))}
           </nav>
         )}
-        <h1 className="font-playfair text-3xl md:text-4xl font-bold text-white leading-tight">{title}</h1>
+        <h1 className="font-playfair text-5xl md:text-4xl font-bold text-white leading-tight">{title}</h1>
         {subtitle && <p className="mt-3 text-white/65 text-sm max-w-xl leading-relaxed">{subtitle}</p>}
       </div>
     </section>

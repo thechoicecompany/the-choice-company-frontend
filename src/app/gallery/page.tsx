@@ -16,7 +16,7 @@ export default async function GalleryPage() {
   return (
     <>
       <PageHero
-        title="Our Work Gallery"
+        title="Explore Our Catalogs"
         breadcrumbs={[
           { label: "Home", href: "/" },
           { label: "Gallery" },
@@ -26,7 +26,7 @@ export default async function GalleryPage() {
         <div className="container-site">
           <div className="flex items-center justify-between mb-6">
             <p className="text-sm text-gray-500">
-              {items.length} project{items.length !== 1 ? "s" : ""}
+              {items.length} Catalogue{items.length !== 1 ? "s" : ""}
             </p>
             <Link
               href="/catalog"

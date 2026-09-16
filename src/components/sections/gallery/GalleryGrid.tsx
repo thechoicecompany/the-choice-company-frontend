@@ -1,24 +1,40 @@
 "use client";
-import { useState, useMemo, useEffect } from "react";
+
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import ScrollTrigger from "gsap/ScrollTrigger";
 import type { GalleryItem, FileType } from "@/lib/api/gallery";
 import { isCatalogUnlocked } from "@/lib/hooks/useCatalogueRequest";
-import { useLazyLoad } from "@/lib/hooks/useLazyLoad";
+import CatalogueCard from "./CatalogueCard";
 
-const TABS = [
-  "All", "products", "packaging", "branding", "events", "corporate",
-] as const;
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
-const TYPE_ICON: Record<FileType, string> = {
-  image: "🖼", pdf: "📄", poster: "🗞", document: "📑", video: "🎬",
-};
-const TYPE_LABEL: Record<FileType, string> = {
-  image: "Image", pdf: "PDF", poster: "Poster", document: "Doc", video: "Video",
-};
-const HEIGHT_MAP = [220, 280, 240, 300, 260];
+// ── constants ──────────────────────────────────────────────────────────────
+const BRASS = "#B8892B";
 const PENDING_ITEM_KEY = "tcc_pending_download_item";
 
+const ALL_TABS = [
+  "All",
+  "products",
+  "packaging",
+  "branding",
+  "events",
+  "corporate",
+] as const;
+
+type Tab = (typeof ALL_TABS)[number];
+
+export const TYPE_LABEL: Record<FileType, string> = {
+  image: "Image",
+  pdf: "PDF",
+  poster: "Poster",
+  document: "Doc",
+  video: "Video",
+};
+
+// ── helpers ────────────────────────────────────────────────────────────────
 function downloadDirectly(fileUrl: string, filename: string) {
   const url = fileUrl.replace(
     /\/(image|raw|video)\/upload\//,
@@ -34,132 +50,182 @@ function downloadDirectly(fileUrl: string, filename: string) {
   a.remove();
 }
 
-function GalleryCard({
-  item,
-  index,
-  onClick,
-}: {
-  item: GalleryItem;
-  index: number;
-  onClick: (item: GalleryItem) => void;
-}) {
-  const { ref, isVisible } = useLazyLoad();
-  const height = HEIGHT_MAP[index % HEIGHT_MAP.length];
-  const icon = TYPE_ICON[item.fileType] ?? "📁";
-  const label = TYPE_LABEL[item.fileType] ?? "File";
-
-  return (
-    <div
-      ref={ref}
-      onClick={() => onClick(item)}
-      className="group cursor-pointer break-inside-avoid mb-4"
-      style={{
-        opacity: isVisible ? 1 : 0,
-        transform: isVisible ? "translateY(0)" : "translateY(16px)",
-        transition: `opacity 0.4s ease ${(index % 6) * 60}ms, transform 0.4s ease ${(index % 6) * 60}ms`,
-      }}
-    >
-      <div className="relative overflow-hidden bg-gray-100 rounded-t-2xl" style={{ height }}>
-        {isVisible && item.thumbnailUrl ? (
-          <Image
-            src={item.thumbnailUrl}
-            alt={item.projectName}
-            fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-            className="object-cover"
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse" />
-        )}
-
-        <span className="absolute top-2 left-2 badge-gray text-[10px] font-semibold backdrop-blur-sm bg-white/80">
-          {icon} {label}
-        </span>
-
-        <div className="absolute inset-0 bg-navy/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-          <span className="text-white text-sm font-medium tracking-wide">
-            Download ↓
-          </span>
-        </div>
-      </div>
-
-      <div className="p-3 border border-t-0 border-gray-100 rounded-b-2xl bg-white">
-        <p className="text-xs font-semibold text-navy truncate">{item.projectName}</p>
-        <div className="flex items-center justify-between mt-1">
-          <span className="badge-gray text-[10px] capitalize">{item.category}</span>
-          {item.clientIndustry && (
-            <span className="text-[10px] text-gray-400 truncate max-w-[80px]">
-              {item.clientIndustry}
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
+// ── component ──────────────────────────────────────────────────────────────
 export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
-  const [tab, setTab] = useState<string>("All");
+  const [tab, setTab] = useState<Tab>("All");
   const router = useRouter();
+  const gridRef = useRef<HTMLDivElement>(null);
+  const tabBarRef = useRef<HTMLDivElement>(null);
 
+  // ── filter ──────────────────────────────────────────────────────────────
   const filtered = useMemo(
-    () => (tab === "All" ? items : items.filter((i) => i.category === tab)),
+    () =>
+      tab === "All" ? items : items.filter((i) => i.category === tab),
     [items, tab]
   );
 
-  function handleCardClick(item: GalleryItem) {
-    if (!item.fileUrl) return;
-
-    if (isCatalogUnlocked()) {
-      downloadDirectly(item.fileUrl, `${item.projectName}.pdf`);
-      return;
-    }
-
-    // Remember which item they wanted, so we can auto-download
-    // it once they come back unlocked.
-    sessionStorage.setItem(PENDING_ITEM_KEY, String(item.id));
-    // router.push(`/catalogues?returnTo=${encodeURIComponent("/gallery")}`);
-    router.push(`/catalog?returnTo=${encodeURIComponent("/gallery")}`);
-  }
-
-  // Auto-resume: if the user just unlocked via /catalogues and
-  // landed back here with a pending item, download it now.
+  // ── pending download on return from /catalog ─────────────────────────────
   useEffect(() => {
     const pendingId = sessionStorage.getItem(PENDING_ITEM_KEY);
     if (!pendingId || !isCatalogUnlocked()) return;
-
     const item = items.find((i) => String(i.id) === pendingId);
-    if (item?.fileUrl) {
-      downloadDirectly(item.fileUrl, `${item.projectName}.pdf`);
-    }
+    if (item?.fileUrl) downloadDirectly(item.fileUrl, `${item.projectName}.pdf`);
     sessionStorage.removeItem(PENDING_ITEM_KEY);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]);
 
+  // ── GSAP: tab bar slide in ───────────────────────────────────────────────
+  useGSAP(
+    () => {
+      gsap.from(tabBarRef.current, {
+        opacity: 0,
+        y: 16,
+        duration: 0.5,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: tabBarRef.current,
+          start: "top 88%",
+          once: true,
+        },
+      });
+    },
+    { scope: tabBarRef }
+  );
+
+  // ── GSAP: staggered card reveal ──────────────────────────────────────────
+  useGSAP(
+    () => {
+      const cards = gsap.utils.toArray<HTMLElement>(".catalogue-card", gridRef.current);
+      if (!cards.length) return;
+
+      gsap.fromTo(
+        cards,
+        { opacity: 0, y: 28 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.55,
+          ease: "power3.out",
+          stagger: {
+            each: 0.09,
+            from: "start",
+          },
+          scrollTrigger: {
+            trigger: gridRef.current,
+            start: "top 82%",
+            once: true,
+          },
+        }
+      );
+    },
+    { scope: gridRef, dependencies: [filtered] }
+  );
+
+  // ── click handler ────────────────────────────────────────────────────────
+  function handleCardClick(item: GalleryItem) {
+    if (!item.fileUrl) return;
+    if (isCatalogUnlocked()) {
+      downloadDirectly(item.fileUrl, `${item.projectName}.pdf`);
+      return;
+    }
+    sessionStorage.setItem(PENDING_ITEM_KEY, String(item.id));
+    router.push(`/catalog?returnTo=${encodeURIComponent("/gallery")}`);
+  }
+
+  // ── render ───────────────────────────────────────────────────────────────
   return (
     <>
-      <div className="flex flex-wrap gap-2 mb-8">
-        {TABS.map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`badge capitalize transition-colors ${tab === t ? "badge-navy" : "badge-gray"
-              }`}
-          >
-            {t}
-          </button>
-        ))}
+      {/* Tab bar */}
+      <div
+        ref={tabBarRef}
+        className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-12 pb-5 border-b border-[#D9D4C7]"
+      >
+        {ALL_TABS.map((t) => {
+          const count =
+            t === "All"
+              ? items.length
+              : items.filter((i) => i.category === t).length;
+          const active = tab === t;
+          return (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className="relative text-sm capitalize transition-colors pb-1 group"
+              style={{
+                color: active ? "#0D1B2A" : "#8A8577",
+                fontWeight: active ? 600 : 400,
+              }}
+            >
+              {t}
+              {/* Count badge — only render tabs that have items */}
+              {count > 0 && (
+                <span
+                  className="ml-1.5 text-[10px]"
+                  style={{ color: active ? BRASS : "#B0A99A" }}
+                >
+                  {count}
+                </span>
+              )}
+              {/* Active underline */}
+              <span
+                className="absolute -bottom-[21px] left-0 right-0 h-[2px] transition-transform duration-200"
+                style={{
+                  background: BRASS,
+                  transform: active ? "scaleX(1)" : "scaleX(0)",
+                  transformOrigin: "left",
+                }}
+              />
+            </button>
+          );
+        })}
+
+        {/* Right: count summary */}
+        <span className="ml-auto text-xs" style={{ color: "#9A9285" }}>
+          {filtered.length} catalogue{filtered.length !== 1 ? "s" : ""}
+        </span>
       </div>
 
-      {filtered.length === 0 ? (
-        <p className="text-gray-400 text-sm text-center py-20">
-          No items in this category yet.
-        </p>
-      ) : (
-        <div className="columns-2 md:columns-3 lg:columns-4 gap-4">
-          {filtered.map((item, i) => (
-            <GalleryCard key={item.id} item={item} index={i} onClick={handleCardClick} />
+      {/* Empty state */}
+      {filtered.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-28 gap-4">
+          <div
+            className="w-10 h-10 border-2 border-dashed flex items-center justify-center"
+            style={{ borderColor: "#C9C2B5" }}
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M4 9h10M9 4v10"
+                stroke="#B0A99A"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
+          <p className="text-sm" style={{ color: "#9A9285" }}>
+            No catalogues in this category yet.
+          </p>
+        </div>
+      )}
+
+      {/* Grid */}
+      {filtered.length > 0 && (
+        <div
+          ref={gridRef}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-8"
+        >
+          {filtered.map((item) => (
+            <CatalogueCard
+              key={item.id}
+              item={item}
+              typeLabel={TYPE_LABEL[item.fileType] ?? "File"}
+              onClick={handleCardClick}
+            />
           ))}
         </div>
       )}

@@ -65,7 +65,7 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-xs text-white/50 leading-relaxed mb-5 max-w-56">
-              India's trusted bulk corporate gifting partner — custom branded gifts delivered pan-India since 2025.
+              India’s trusted corporate gifting partner — customized gifts, branded solutions, and seamless delivery across India.
             </p>
 
             {/* Social Icons */}

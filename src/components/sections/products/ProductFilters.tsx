@@ -3,19 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { OCCASIONS } from "@/lib/constants/occasions";
 import { BUDGET_RANGES } from "@/lib/constants/budgetRanges";
-
-const CATEGORIES = [
-  { slug: "gift-hampers", label: "Gift Hampers" },
-  { slug: "laptop-bags", label: "Laptop Bags" },
-  { slug: "drinkware", label: "Drinkware" },
-  { slug: "office-essentials", label: "Office Essentials" },
-  { slug: "apparel", label: "Apparel" },
-  { slug: "travel-kits", label: "Travel Kits" },
-  { slug: "eco-friendly", label: "Eco-Friendly Gifts" },
-  { slug: "premium", label: "Premium Gifts" },
-  { slug: "electronics", label: "Electronics" },
-  { slug: "custom-merchandise", label: "Custom Merchandise" },
-];
+import { CATEGORIES } from "@/lib/constants/categories";
 
 export interface ActiveFilters {
   category?: string;
@@ -25,13 +13,17 @@ export interface ActiveFilters {
   sort?: string;
 }
 
-interface Props { activeFilters: ActiveFilters }
+// interface Props { activeFilters: ActiveFilters }
+interface Props {
+  activeFilters: ActiveFilters;
+  onFilterChange?: () => void;  // ← added
+}
+
 
 export default function ProductFilters({ activeFilters }: Props) {
   const router = useRouter();
 
   const buildHref = (key: string, value: string) => {
-    // Strip undefined values so URLSearchParams doesn't produce "key=undefined"
     const clean = Object.fromEntries(
       Object.entries(activeFilters).filter(([, v]) => v !== undefined)
     ) as Record<string, string>;

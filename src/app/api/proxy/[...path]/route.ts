@@ -3,7 +3,7 @@ import { revalidateTag } from "next/cache";
 import { verifyAdminJwt } from "@/lib/auth/jwt";
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL;
-const TIMEOUT_MS = 30_000;
+const TIMEOUT_MS = 60_000;
 
 // This proxy exists ONLY so the browser can call authenticated admin
 // endpoints without the JWT (stored in an httpOnly cookie) ever touching
