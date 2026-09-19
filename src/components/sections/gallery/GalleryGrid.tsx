@@ -11,17 +11,33 @@ import CatalogueCard from "./CatalogueCard";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
+
+const TAB_LABELS: Record<Tab, string> = {
+  "All": "All",
+  "festive": "Festive",
+  "employee-kits": "Employee Kits",
+  "hampers": "Hampers",
+  "corporate": "Corporate",
+  "tech-electronics": "Tech & Electronics",
+  "bags-travel": "Bags & Travel",
+  "events": "Events",
+  "packaging": "Packaging",
+};
+
 // ── constants ──────────────────────────────────────────────────────────────
 const BRASS = "#B8892B";
 const PENDING_ITEM_KEY = "tcc_pending_download_item";
 
 const ALL_TABS = [
   "All",
-  "products",
-  "packaging",
-  "branding",
-  "events",
+  "festive",
+  "employee-kits",
+  "hampers",
   "corporate",
+  "tech-electronics",
+  "bags-travel",
+  "events",
+  "packaging",
 ] as const;
 
 type Tab = (typeof ALL_TABS)[number];
@@ -150,8 +166,7 @@ export default function GalleryGrid({ items }: { items: GalleryItem[] }) {
             <button
               key={t}
               onClick={() => setTab(t)}
-              className="relative text-sm capitalize transition-colors pb-1 group"
-              style={{
+              className="relative text-sm transition-colors pb-1 group" style={{
                 color: active ? "#0D1B2A" : "#8A8577",
                 fontWeight: active ? 600 : 400,
               }}

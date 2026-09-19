@@ -16,7 +16,7 @@ export interface GalleryItem {
   id: number;
   caption: string;
   projectName: string;
-  category: "products" | "packaging" | "branding" | "events" | "corporate";
+  category: "festive" | "employee-kits" | "hampers" | "corporate" | "tech-electronics" | "bags-travel" | "events" | "packaging";
   clientIndustry?: string;
   quantity?: number;
   sortOrder: number;
@@ -24,7 +24,6 @@ export interface GalleryItem {
   thumbnailUrl: string;
   fileUrl?: string;
 }
-
 export interface GalleryItemDetail extends GalleryItem {
   fullUrl: string;
 }

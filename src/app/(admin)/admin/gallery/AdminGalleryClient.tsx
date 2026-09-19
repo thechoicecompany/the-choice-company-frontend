@@ -8,7 +8,7 @@ import {
     adminToggleGalleryItem,
 } from "@/lib/api/admin/adminGallery";
 
-const CATEGORIES = ["products", "packaging", "branding", "events", "corporate"];
+const CATEGORIES = ["festive", "employee-kits", "hampers", "corporate", "tech-electronics", "bags-travel", "events", "packaging"];
 const THUMB_ACCEPT = "image/jpeg,image/png,image/webp";
 const PDF_ACCEPT = "application/pdf";
 

@@ -19,23 +19,25 @@ function resolveCategory(slug: string) {
 }
 
 export default function IndustriesExplorer({ industries }: { industries: readonly Industry[] }) {
-    /* ---------- shared: product tag renderer ---------- */
     const renderProducts = (products: readonly string[] | undefined, compact = false) => {
         if (!products?.length) return null;
         return (
             <div className={`flex flex-wrap gap-3 ${compact ? "mb-6" : "mb-8"}`}>
                 {products.map((slug) => {
                     const category = resolveCategory(slug);
-                    if (!category) return null; // skip silently if a slug drifts out of sync
-                    const Icon = category.icon;
+                    if (!category) return null;
                     return (
                         <Link
                             key={slug}
                             href={`/products?category=${category.slug}`}
                             className="card-flat flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-navy hover:border-gold hover:text-gold transition-colors"
                         >
-                            <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${category.color}`}>
-                                <Icon className={`w-3.5 h-3.5 ${category.iconColor}`} />
+                            <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full overflow-hidden ${category.color}`}>
+                                <img
+                                    src={category.image}
+                                    alt={category.label}
+                                    className="w-full h-full object-cover"
+                                />
                             </span>
                             {category.label}
                         </Link>
@@ -44,7 +46,6 @@ export default function IndustriesExplorer({ industries }: { industries: readonl
             </div>
         );
     };
-
     /* ---------- Desktop: hover/focus-driven list + side panel (md and up) ---------- */
     const [activeSlug, setActiveSlug] = useState(industries[0]?.slug);
     const active = industries.find((i) => i.slug === activeSlug) ?? industries[0];

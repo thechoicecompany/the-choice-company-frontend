@@ -353,3 +353,37 @@
 footer {
     font-family: "Poppins", sans-serif;
 }
+
+/* catalog page */
+/* ── Catalogue form dark-glass input theme ── */
+.catalogue-form-dark input,
+.catalogue-form-dark select,
+.catalogue-form-dark textarea {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+    color: #fff !important;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.catalogue-form-dark input::placeholder,
+.catalogue-form-dark textarea::placeholder {
+    color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.catalogue-form-dark input:focus,
+.catalogue-form-dark select:focus,
+.catalogue-form-dark textarea:focus {
+    border-color: rgba(184, 146, 42, 0.6) !important;
+    background: rgba(255, 255, 255, 0.09) !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(184, 146, 42, 0.12) !important;
+}
+
+.catalogue-form-dark label {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.catalogue-form-dark select option {
+    background: #1e1608;
+    color: #fff;
+}

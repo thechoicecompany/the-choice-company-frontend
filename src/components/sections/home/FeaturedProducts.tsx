@@ -93,7 +93,7 @@ export default function FeaturedProductsAnimated({ products }: { products: Produ
       <div className="container-site">
         {/* Heading */}
         <div ref={headingRef} className="text-center mb-12">
-          <span className="section-label block">OUR COLLECTION</span>
+          <span className="section-label block !text-[#214a04]">OUR COLLECTION</span>
           <h2 className="section-title mt-2">Featured Collections</h2>
         </div>
 

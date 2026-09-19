@@ -10,7 +10,7 @@ type Industry = {
     label: string;
     icon: string;
     description: string;
-    popularProducts: readonly string[]; // slugs from CATEGORIES
+    popularProducts: readonly string[];
 };
 
 function resolveCategory(slug: string) {
@@ -50,16 +50,19 @@ export default function IndustryDetailAnimated({ industry }: { industry: Industr
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
                 {industry.popularProducts.map((slug) => {
                     const category = resolveCategory(slug);
-                    if (!category) return null; // skip silently if a slug drifts out of sync
-                    const Icon = category.icon;
+                    if (!category) return null;
                     return (
                         <Link
                             key={slug}
                             href={`/products?category=${category.slug}`}
                             className="industry-product card-flat p-4 text-sm font-medium text-navy hover:border-gold hover:text-gold transition-colors flex flex-col items-center gap-2"
                         >
-                            <span className={`inline-flex items-center justify-center w-10 h-10 rounded-full ${category.color}`}>
-                                <Icon className={`w-5 h-5 ${category.iconColor}`} />
+                            <span className={`inline-flex items-center justify-center w-10 h-10 rounded-full overflow-hidden ${category.color}`}>
+                                <img
+                                    src={category.image}
+                                    alt={category.label}
+                                    className="w-full h-full object-cover"
+                                />
                             </span>
                             {category.label}
                         </Link>
