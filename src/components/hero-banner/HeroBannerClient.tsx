@@ -58,7 +58,7 @@ export default function HeroBannerClient({ initialBanners }: Props) {
     return (
         <section
             className="relative w-full overflow-hidden bg-[#f7f5f0]"
-            style={{ aspectRatio: "3 / 1", minHeight: 180, maxHeight: 400 }}
+         style={{ aspectRatio: "3 / 1" }}
             onMouseEnter={stopTimer}
             onMouseLeave={startTimer}
             aria-roledescription="carousel"
