@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import PageHero from "@/components/layout/PageHero";
+import PageHero from "@/components/ui/PageHero/PageHero";
 import ProductFilters from "@/components/sections/products/ProductFilters";
 import ProductGrid from "@/components/sections/products/ProductGrid";
 import { fetchProducts } from "@/lib/api/products";
+import { heroBases } from "@/components/ui/PageHero/heroPresets";
 
 export const revalidate = 3600;
 
@@ -45,8 +46,9 @@ export default async function ProductCategoryPage({ params, searchParams }: Prop
     return (
         <>
             <PageHero
+                {...heroBases.category}
                 title={label}
-                subtitle="Premium corporate gifts with custom branding"
+                subtitle={`Premium ${label} with custom branding`}
                 breadcrumbs={[
                     { label: "Home", href: "/" },
                     { label: "Products", href: "/products" },

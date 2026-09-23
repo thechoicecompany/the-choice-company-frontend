@@ -156,6 +156,11 @@ const nextConfig: NextConfig = {
         destination: "/industries",
         permanent: true,
       },
+      {
+        source: "/site.webmanifest",
+        destination: "/favicon_io/site.webmanifest",
+        permanent: false,
+      },
     ];
   },
 };

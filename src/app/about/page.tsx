@@ -1,15 +1,18 @@
+
 import type { Metadata } from "next";
-import PageHero from "@/components/layout/PageHero";
-import VisionMission from "@/components/sections/about/VisionMission";
-import Infrastructure from "@/components/sections/about/Infrastructure";
-import DeliveryNetwork from "@/components/sections/about/DeliveryMap";
-import ClosingStatement from "@/components/sections/about/Closing-Statement";
-import CompanyOverviewAnimated from "@/components/sections/about/CompanyOverview";
+import PageHero from "@/components/ui/PageHero/PageHero";
+import AboutHero from "@/components/sections/about/AboutHero";
+import AboutStory from "@/components/sections/about/AboutStory";
+import MissionVision from "@/components/sections/about/MissionVision";
+import AboutUSPs from "@/components/sections/about/AboutUSPs";
+import InfrastructureScale from "@/components/sections/about/InfrastructureScale";
+import PanIndiaNetwork from "@/components/sections/about/PanIndiaNetwork";
+import AboutCTA from "@/components/sections/about/AboutCTA";
 
 const SITE_URL = "https://thechoicecompany.in"; // replace with your live domain
 
 export const metadata: Metadata = {
-  title: "About Us | Corporate Gifting Company in India Since 2010",
+  title: "About Us | Corporate Gifting Company in India Since 2025",
   description:
     "The Choice Company designs, sources and delivers corporate gifts and branded merchandise at scale — 500+ corporate relationships, 10M+ units delivered across 28+ states in India.",
   keywords: [
@@ -37,7 +40,6 @@ const jsonLd = {
       "@id": `${SITE_URL}/#organization`,
       name: "The Choice Company",
       url: SITE_URL,
-      foundingDate: "2010",
       description:
         "Corporate gifting and merchandise partner serving businesses across India with sourcing, customization and pan-India delivery.",
       areaServed: { "@type": "Country", name: "India" },
@@ -61,17 +63,16 @@ export default function AboutPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <PageHero
-        title="About The Choice Company"
-        subtitle="Corporate gifting, built for scale"
-        breadcrumbs={[{ label: "Home", href: "/" }, { label: "About Us" }]}
-      />
+      <AboutHero breadcrumbs={[{ label: "Home", href: "/" }, { label: "About Us" }]} />
 
-      <CompanyOverviewAnimated />
-      <VisionMission />
-      <Infrastructure />
-      <DeliveryNetwork />
-      <ClosingStatement />
+      <AboutStory />
+      <MissionVision />
+      <AboutUSPs />
+      <InfrastructureScale />
+      {/* <DeliveryNetwork /> */}
+      <PanIndiaNetwork />
+      {/* <TrustedBrands /> */}
+      <AboutCTA />
     </>
   );
 }

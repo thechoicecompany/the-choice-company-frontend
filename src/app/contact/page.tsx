@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import PageHero from "@/components/layout/PageHero";
+import PageHero from "@/components/ui/PageHero/PageHero";
 import ContactForm from "@/components/forms/ContactForm";
+import { heroPresets } from "@/components/ui/PageHero/heroPresets";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -179,14 +180,7 @@ const GiftTagSVG = ({ className }: { className: string }) => (
 export default function ContactPage() {
   return (
     <>
-      <PageHero
-        title="Let's Talk Gifting"
-        subtitle="Our team responds within 2 business hours"
-        breadcrumbs={[
-          { label: "Home", href: "/" },
-          { label: "Contact Us" },
-        ]}
-      />
+      <PageHero {...heroPresets.contact} />
 
       {/* ── Main contact section ─────────────────────────────────── */}
       <section className="relative overflow-hidden bg-white">

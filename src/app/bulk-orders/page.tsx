@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import PageHero from "@/components/layout/PageHero";
+import PageHero from "@/components/ui/PageHero/PageHero";
 import BulkInquiryForm from "@/components/forms/BulkInquiryForm";
 
 export const metadata: Metadata = {

@@ -6,7 +6,6 @@ import IndustriesStrip from "@/components/sections/home/IndustriesStrip";
 import WhyChooseUsAnimated from "@/components/sections/home/WhyChooseUs";
 import ProcessFlowAnimated from "@/components/sections/home/ProcessFlow";
 import SocialProofAnimated from "@/components/sections/home/SocialProof";
-import CtaBannerAnimated from "@/components/sections/home/CtaBanner";
 import SchemaMarkup from "@/components/ui/SchemaMarkup";
 import ScrollRevealWrapper from "@/components/ui/ScrollRevealWrapper";
 import { fetchFeaturedProducts } from "@/lib/api/products";
@@ -57,8 +56,6 @@ export default async function HomePage() {
       {/* Social Proof — internal GSAP counters + stagger */}
       {/* <SocialProofAnimated /> */}
 
-      {/* CTA Banner — internal GSAP */}
-      <CtaBannerAnimated />
     </>
   );
 }

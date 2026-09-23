@@ -168,7 +168,7 @@ function AdminLoginForm() {
                 </div>
 
                 <p className="text-center text-white/30 text-xs mt-6">
-                    © 2026 The Choice Company · Stimulus Research Services
+                    © 2026 The Choice Company
                 </p>
             </div>
         </div>

@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import PageHero from "@/components/layout/PageHero";
+import PageHero from "@/components/ui/PageHero/PageHero";
 import SchemaMarkup from "@/components/ui/SchemaMarkup";
 import { fetchPostBySlug, fetchAllBlogSlugs } from "@/lib/api/blog";
+import { heroBases } from "@/components/ui/PageHero/heroPresets";
 export const revalidate = 3600;
 export async function generateStaticParams() {
   return (await fetchAllBlogSlugs().catch(() => [])).map(s => ({ slug: s }));
@@ -17,7 +18,15 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
   const { slug } = await params; const post = await fetchPostBySlug(slug).catch(() => null);
   if (!post) notFound();
   return (<><SchemaMarkup schema={{ "@context": "https://schema.org", "@type": "Article", headline: post.title, author: { "@type": "Person", name: post.author } }} />
-    <PageHero title={post.title} breadcrumbs={[{ label: "Home", href: "/" }, { label: "Blog", href: "/blog" }, { label: post.category }]} />
+    <PageHero
+      {...heroBases.blogPost}
+      title={post.title}
+      breadcrumbs={[
+        { label: "Home", href: "/" },
+        { label: "Blog", href: "/blog" },
+        { label: post.category },
+      ]}
+    />
     <section className="section-py"><div className="container-site max-w-3xl mx-auto">
       <div className="flex items-center gap-3 text-xs text-gray-400 mb-8">
         <span>By <strong className="text-navy">{post.author}</strong></span>

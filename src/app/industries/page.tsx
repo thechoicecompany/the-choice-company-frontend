@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import PageHero from "@/components/layout/PageHero";
-import CtaBanner from "@/components/sections/home/CtaBanner";
+import PageHero from "@/components/ui/PageHero/PageHero";
 import IndustriesExplorer from "@/components/sections/industries/IndustriesExplorer";
 import { INDUSTRIES } from "@/lib/constants/industries";
+import { heroPresets } from "@/components/ui/PageHero/heroPresets";
 
 export const metadata: Metadata = {
   title: "Industry Solutions",
@@ -12,16 +12,13 @@ export const metadata: Metadata = {
 export default function IndustriesPage() {
   return (
     <>
-      <PageHero
-        title="Industries We Serve"
-        breadcrumbs={[{ label: "Home", href: "/" }, { label: "Industries" }]}
-      />
+      <PageHero {...heroPresets.industries} />
       <section className="section-py">
         <div className="container-site">
           <IndustriesExplorer industries={INDUSTRIES} />
         </div>
       </section>
-      <CtaBanner />
+
     </>
   );
 }

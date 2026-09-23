@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import PageHero from "@/components/layout/PageHero";
-import CtaBanner from "@/components/sections/home/CtaBanner";
+import PageHero from "@/components/ui/PageHero/PageHero";
 import IndustryDetailAnimated from "@/components/sections/industries/IndustryDetailAnimated";
 import { INDUSTRIES } from "@/lib/constants/industries";
+import { heroBases } from "@/components/ui/PageHero/heroPresets";
 
 export async function generateStaticParams() {
   return INDUSTRIES.map((i) => ({ industry: i.slug }));
@@ -31,6 +31,7 @@ export default async function IndustryPage({
   return (
     <>
       <PageHero
+        {...heroBases.industryDetail}
         title={`Corporate Gifts for ${ind.label}`}
         subtitle={ind.description}
         breadcrumbs={[
@@ -42,7 +43,6 @@ export default async function IndustryPage({
       <section className="section-py">
         <IndustryDetailAnimated industry={ind} />
       </section>
-      <CtaBanner />
     </>
   );
 }

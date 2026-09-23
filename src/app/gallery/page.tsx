@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import PageHero from "@/components/layout/PageHero";
+import PageHero from "@/components/ui/PageHero/PageHero";
 import GalleryGrid from "@/components/sections/gallery/GalleryGrid";
 import { fetchGalleryItems } from "@/lib/api/gallery";
+import { heroPresets } from "@/components/ui/PageHero/heroPresets";
 
 export const revalidate = 7200;
 export const metadata: Metadata = {
@@ -15,13 +16,7 @@ export default async function GalleryPage() {
 
   return (
     <>
-      <PageHero
-        title="Explore Our Catalogs"
-        breadcrumbs={[
-          { label: "Home", href: "/" },
-          { label: "Gallery" },
-        ]}
-      />
+      <PageHero {...heroPresets.gallery} />
       <section className="section-py">
         <div className="container-site">
           <div className="flex items-center justify-between mb-6">

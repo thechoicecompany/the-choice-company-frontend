@@ -3,9 +3,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import PageHero from "@/components/layout/PageHero";
+import PageHero from "@/components/ui/PageHero/PageHero";
 import ShopProductDetail from "@/components/shop/ShopProductDetail";
 import { fetchAllSampleProductSlugs, fetchSampleProductBySlug } from "@/lib/api/sampleProducts";
+import { heroBases } from "@/components/ui/PageHero/heroPresets";
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
@@ -39,8 +40,8 @@ export default async function ShopProductPage({
     return (
         <>
             <PageHero
+                {...heroBases.sampleProduct}
                 title={product.name}
-                subtitle="Order a sample to evaluate quality before your bulk order"
                 breadcrumbs={[
                     { label: "Home", href: "/" },
                     { label: "Sample Shop", href: "/shop" },

@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import type { BlogPost } from "@/lib/types/blog.types";
-import PageHero from "@/components/layout/PageHero";
+import PageHero from "@/components/ui/PageHero/PageHero";
 import { fetchPosts, fetchBlogCategories } from "@/lib/api/blog";
+import { heroPresets } from "@/components/ui/PageHero/heroPresets";
 export const revalidate = 1800;
 export const metadata: Metadata = { title: "Blog", description: "Corporate gifting ideas and trends." };
 interface Props { searchParams: Promise<{ category?: string; page?: string }> }
@@ -13,7 +14,8 @@ export default async function BlogPage({ searchParams }: Props) {
     fetchPosts({ category: p.category, page: p.page }).catch(() => ({ data: [], total: 0, page: 1, perPage: 12, totalPages: 0 })),
     fetchBlogCategories().catch(() => [] as string[]),
   ]);
-  return (<><PageHero title="Corporate Gifting Blog" breadcrumbs={[{ label: "Home", href: "/" }, { label: "Blog" }]} />
+  return (<>
+    <PageHero {...heroPresets.blog} />
     <section className="section-py"><div className="container-site">
       <div className="flex flex-wrap gap-2 mb-10">
         <Link href="/blog" className={`badge ${!p.category ? "badge-navy" : "badge-gray"}`}>All</Link>

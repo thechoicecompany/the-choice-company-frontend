@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import PageHero from "@/components/layout/PageHero";
+import PageHero from "@/components/ui/PageHero/PageHero";
 import ShopGridAnimated from "@/components/shop/ShopGrid";
 import ShopBanner from "@/components/shop/ShopBanner";
 import ScrollRevealWrapper from "@/components/ui/ScrollRevealWrapper";
 import { fetchSampleProducts } from "@/lib/api/sampleProducts";
+import { heroPresets } from "@/components/ui/PageHero/heroPresets";
 
 export const revalidate = 3600;
 
@@ -20,11 +21,7 @@ export default async function ShopPage() {
 
     return (
         <>
-            <PageHero
-                title="Try Before You Bulk Order"
-                subtitle="Order 1–5 sample units to evaluate quality, branding finish & packaging before committing to bulk"
-                breadcrumbs={[{ label: "Home", href: "/" }, { label: "Sample Shop" }]}
-            />
+            <PageHero {...heroPresets.sampleShop} />
 
             <ScrollRevealWrapper variant="fadeUp" threshold={0.1}>
                 <ShopBanner />
