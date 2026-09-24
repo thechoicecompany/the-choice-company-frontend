@@ -72,12 +72,11 @@ export default function FooterMain() {
 
                 {/* Col 1 — Brand (no left border) */}
                 <div className="footer-col" style={{ paddingRight: 32, paddingBottom: 32 }}>
-                    <div className="mb-5">
+                    <div style={{ width: 180, height: 180, position: "relative", flexShrink: 0 }}>
                         <Image
-                            src="/logo.png"
+                            src="/white.png"
                             alt="The Choice Company"
-                            width={180}
-                            height={180}
+                            fill
                             className="object-contain"
                         />
                     </div>
