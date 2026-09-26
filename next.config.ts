@@ -5,7 +5,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   turbopack: {},
   transpilePackages: ["gsap"],
-
+  env: {
+    JWT_SECRET: process.env.JWT_SECRET,
+  },
   images: {
     remotePatterns: [
       {
