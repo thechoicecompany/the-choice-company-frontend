@@ -13,7 +13,7 @@ import { fetchFeaturedProducts } from "@/lib/api/products";
 export const metadata: Metadata = {
   title: "India's Trusted Corporate Gifting Partner",
   description:
-    "Bulk corporate gifts, employee kits & festive hampers. Custom branding. Pan-India delivery.",
+    "Bulk corporate gifts,employee kits & festive hampers. Custom branding. Pan-India delivery.",
   alternates: { canonical: "https://thechoicecompany.in" },
 };
 
