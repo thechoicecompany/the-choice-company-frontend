@@ -68,6 +68,12 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  verification: {
+    other: {
+      "msvalidate.01": "7B110763B6D0F09AF67054B694ADBB10",
+    },
+  },
+
 };
 
 // ── Root Layout ────────────────────────────────────────
