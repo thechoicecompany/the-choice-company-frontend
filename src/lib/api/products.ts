@@ -72,7 +72,6 @@
 // }
 
 
-
 import { springApi } from "./client";
 import type { Product, ProductFilters, PaginatedResponse } from "@/lib/types/product.types";
 
@@ -103,37 +102,23 @@ export async function fetchProducts(filters: ProductFilters): Promise<PaginatedR
   const requestedPage1Indexed = Number(filters.page) || 1;
   p.set("page", String(Math.max(0, requestedPage1Indexed - 1)));
 
-  // ── TEMP DIAGNOSTIC LOGGING — remove once the 500 is root-caused ──────────
-  console.log("[fetchProducts] NEXT_PUBLIC_API_URL raw env:", JSON.stringify(process.env.NEXT_PUBLIC_API_URL));
-  console.log("[fetchProducts] springApi.defaults.baseURL:", JSON.stringify(springApi.defaults.baseURL));
-  console.log("[fetchProducts] requesting path:", `/api/products?${p.toString()}`);
+  const res = await springApi.get<ApiEnvelope<SpringPagedResponse<Product>>>(
+    `/api/products?${p.toString()}`
+  );
 
-  try {
-    const res = await springApi.get<ApiEnvelope<SpringPagedResponse<Product>>>(
-      `/api/products?${p.toString()}`
-    );
+  const paged = res.data?.data;
 
-    console.log("[fetchProducts] response status:", res.status);
-
-    const paged = res.data?.data;
-
-    if (!paged) {
-      console.warn("[fetchProducts] res.data.data was falsy — got:", JSON.stringify(res.data));
-      return { data: [], total: 0, page: 1, perPage: 24, totalPages: 0 };
-    }
-
-    return {
-      data: paged.content ?? [],
-      total: paged.totalElements ?? 0,
-      page: (paged.page ?? 0) + 1,
-      perPage: paged.size ?? 24,
-      totalPages: paged.totalPages ?? 0,
-    };
-  } catch (err: any) {
-    console.error("[fetchProducts] THREW:", err?.message, "| status:", err?.status, "| name:", err?.name);
-    throw err; // re-throw so we still see the 500 — this is just to log the cause before it propagates
+  if (!paged) {
+    return { data: [], total: 0, page: 1, perPage: 24, totalPages: 0 };
   }
-  // ── END TEMP DIAGNOSTIC LOGGING ────────────────────────────────────────────
+
+  return {
+    data: paged.content ?? [],
+    total: paged.totalElements ?? 0,
+    page: (paged.page ?? 0) + 1,
+    perPage: paged.size ?? 24,
+    totalPages: paged.totalPages ?? 0,
+  };
 }
 
 export async function fetchProductBySlug(slug: string): Promise<Product | null> {
